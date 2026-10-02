@@ -159,9 +159,13 @@ public final class AdminFinder {
         }
 
         // ---- baseline: probe random paths that cannot exist -------------
+        // Interruption is checked between probes. Without this, cancelling during
+        // the baseline phase did nothing until all 3 requests finished, which is
+        // what made STOP feel broken.
         StringBuilder baselineFps = new StringBuilder();
         int baselineOk = 0;
         for (int i = 0; i < Math.max(1, baselineSamples); i++) {
+            if (Thread.currentThread().isInterrupted()) return new ArrayList<>();
             String rnd = join(baseUrl, "zq" + Long.toHexString(
                 (long) (Math.random() * 0xFFFFFFFL)) + "x");
             Fetcher.Fetch f = Fetcher.get(rnd, userAgent, timeoutMs);
@@ -199,6 +203,11 @@ public final class AdminFinder {
         List<Hit> hits = new ArrayList<>();
         try {
             for (Future<Hit> f : futures) {
+                // If this thread was interrupted (cancelled), stop waiting on the
+                // remaining futures. Without this the scan still had to drain the
+                // whole queue one f.get() at a time, so STOP appeared to do nothing
+                // for as long as the wordlist was long.
+                if (Thread.currentThread().isInterrupted()) break;
                 try {
                     hits.add(f.get());
                 } catch (java.util.concurrent.ExecutionException e) {
@@ -209,8 +218,14 @@ public final class AdminFinder {
                 }
             }
         } finally {
-            pool.shutdown();
-            pool.awaitTermination(2, TimeUnit.SECONDS);
+            // shutdownNow, not shutdown: shutdown() lets queued tasks finish, which
+            // is exactly the "hangs while stopping" behaviour. Then cancel anything
+            // still pending so the queue is actually dropped.
+            pool.shutdownNow();
+            for (Future<Hit> f : futures) f.cancel(true);
+            // Do not block on termination. A worker parked in a socket read can
+            // sit here for the full timeout; the caller has already moved on.
+            pool.awaitTermination(250, TimeUnit.MILLISECONDS);
         }
         return hits;
     }

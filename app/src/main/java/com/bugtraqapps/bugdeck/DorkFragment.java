@@ -63,6 +63,10 @@ public final class DorkFragment extends Fragment {
 
     private ExecutorService executor;
     private Handler mainHandler;
+    /** The thread running the current search, so CLEAR can interrupt it. */
+    private volatile Thread worker;
+    /** Set when the in-flight search is cancelled, so its own callbacks stay quiet. */
+    private volatile boolean cancelled = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -159,6 +163,8 @@ public final class DorkFragment extends Fragment {
 
         searchBtn.setEnabled(false);
         clearBtn.setEnabled(false);
+        clearBtn.setText(R.string.btn_cancel);
+        cancelled = false;
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setIndeterminate(true);
         statusText.setText(R.string.dork_searching);
@@ -170,6 +176,7 @@ public final class DorkFragment extends Fragment {
         final String ua = SettingsDialog.userAgent(requireContext());
 
         executor.execute(() -> {
+            worker = Thread.currentThread();
             try {
                 final DorkSearch.Result r =
                     new DorkSearch(ua, timeout)
@@ -208,12 +215,42 @@ public final class DorkFragment extends Fragment {
     }
 
     private void finish() {
+        // A cancelled search leaves an abandoned thread behind whose callbacks
+        // would call this and overwrite the "cancelled" status, so a flag rather
+        // than a thread check decides who reports completion. Thread.interrupted()
+        // is not usable here: these callbacks are posted to the main looper, so
+        // they run on the UI thread and never carry the worker's interrupt state.
+        if (cancelled) return;
+        worker = null;
         searchBtn.setEnabled(true);
         clearBtn.setEnabled(true);
+        clearBtn.setText(R.string.btn_clear);
         progressBar.setVisibility(View.GONE);
     }
 
+    /**
+     * While a search is running CLEAR cancels it; otherwise it clears results.
+     *
+     * <p>The interrupt matters: searchAllPages walks up to ten pages of results
+     * and each page is a blocking request, so without it a long search could not
+     * be stopped at all.
+     */
     private void clearResults() {
+        Thread w = worker;
+        if (w != null) {
+            cancelled = true;
+            w.interrupt();
+            worker = null;
+            // do not join: abandon it, and let it die on its own timeout
+            executor.shutdownNow();
+            executor = Executors.newSingleThreadExecutor();
+            searchBtn.setEnabled(true);
+            clearBtn.setEnabled(true);
+            clearBtn.setText(R.string.btn_clear);
+            progressBar.setVisibility(View.GONE);
+            statusText.setText(getString(R.string.dork_cancelled));
+            return;
+        }
         resultUrls.clear();
         resultAdapter.notifyDataSetChanged();
         statusText.setText("");

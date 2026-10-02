@@ -37,6 +37,8 @@ public final class Crawler {
         public final List<String> failures = new ArrayList<>();
         /** Null unless the seed itself could not be read. */
         public String failure;
+        /** True when the crawl stopped early because its thread was interrupted. */
+        public boolean cancelled;
     }
 
     private static final String[] ASSET_EXT = {
@@ -81,6 +83,13 @@ public final class Crawler {
         queue.add(new Entry(seed, 0));
 
         while (!queue.isEmpty() && res.pagesFetched < maxPages) {
+            // The crawl is single-threaded, so an interrupted thread is the only
+            // way out. Without this a cancelled crawl kept fetching page after
+            // page until it hit maxPages.
+            if (Thread.currentThread().isInterrupted()) {
+                res.cancelled = true;
+                break;
+            }
             Entry e = queue.poll();
             Fetcher.Opts o = new Fetcher.Opts().ua(userAgent).timeout(timeoutMs);
             // no redirect following: a 302 to a login page is not a page to parse

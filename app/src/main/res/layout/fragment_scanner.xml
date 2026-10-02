@@ -131,6 +131,16 @@
             android:layout_marginStart="8dp"
             android:enabled="false"
             android:text="@string/btn_stop" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/forceKill"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:enabled="false"
+            android:text="@string/btn_force_kill"
+            android:textColor="?attr/colorError" />
     </LinearLayout>
 
     <!-- A plain horizontal ProgressBar, not LinearProgressIndicator: the latter

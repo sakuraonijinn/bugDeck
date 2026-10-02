@@ -50,6 +50,7 @@ if ! javac -cp "$OUT" -d "$OUT" \
   "$ROOT/notes/cli/WireTest.java" \
   "$ROOT/notes/cli/DorkTest.java" \
   "$ROOT/notes/cli/ProviderTest.java" \
+  "$ROOT/notes/cli/CancelTest.java" \
   "$ROOT/notes/cli/FixtureSite.java" 2> "$OUT/.err"; then
   grep -v "Unexpected extension" "$OUT/.err" | grep -v "^[0-9]* warning" \
     | grep -v "unchecked\|Recompile" || true
@@ -61,7 +62,7 @@ grep -v "Unexpected extension" "$OUT/.err" | grep -v "^[0-9]* warning" \
 
 echo "==> running all suites"
 FAILED=0
-for t in CoreTest WireTest DorkTest ProviderTest; do
+for t in CoreTest WireTest DorkTest ProviderTest CancelTest; do
   printf "  %-13s " "$t"
   # Each suite opens real sockets; a leaked non-daemon thread would hang the
   # build forever instead of failing it, so give each one a hard ceiling.

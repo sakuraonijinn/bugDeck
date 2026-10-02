@@ -32,6 +32,7 @@ public final class R {
         public static final int wordlistSpinner   = 116;
         public static final int scan              = 117;
         public static final int stop              = 118;
+        public static final int forceKill         = 126;
         public static final int progress          = 119;
         public static final int status            = 120;
         public static final int results           = 121;
@@ -93,6 +94,11 @@ public final class R {
         public static final int label_wordlist        = 209;
         public static final int btn_scan              = 210;
         public static final int btn_stop              = 211;
+        public static final int btn_force_kill      = 270;
+        public static final int force_killed        = 271;
+        public static final int stopped_fmt        = 272;
+        public static final int btn_cancel           = 273;
+        public static final int dork_cancelled       = 274;
         public static final int hint_target           = 212;
         public static final int label_dork_query      = 213;
         public static final int label_dork_domain     = 214;

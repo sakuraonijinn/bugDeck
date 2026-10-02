@@ -63,6 +63,7 @@ public final class ScannerFragment extends Fragment {
     private TextInputEditText depthInput;
     private android.widget.Button scanBtn;
     private android.widget.Button stopBtn;
+    private android.widget.Button forceBtn;
     private android.widget.ProgressBar progressBar;
     private TextView statusText;
     private RecyclerView resultsRecycler;
@@ -73,8 +74,19 @@ public final class ScannerFragment extends Fragment {
     private ExecutorService executor;
     private Handler mainHandler;
     private volatile boolean cancelRequested = false;
+    private volatile boolean forceKilled = false;
     private volatile int done = 0;
     private volatile int total = 0;
+
+    /**
+     * The thread currently running the scan.
+     *
+     * <p>This reference is what makes STOP actually work. The core checks
+     * Thread.interrupted() to bail out of the crawl, the admin pool and the
+     * Future drain, but only if somebody interrupts it -- setting a boolean flag
+     * was never enough, because a socket read does not observe that flag.
+     */
+    private volatile Thread worker;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,6 +112,7 @@ public final class ScannerFragment extends Fragment {
         depthRow = v.findViewById(R.id.depthLabel);
         scanBtn = v.findViewById(R.id.scan);
         stopBtn = v.findViewById(R.id.stop);
+        forceBtn = v.findViewById(R.id.forceKill);
         progressBar = v.findViewById(R.id.progress);
         statusText = v.findViewById(R.id.status);
         resultsRecycler = v.findViewById(R.id.results);
@@ -122,10 +135,9 @@ public final class ScannerFragment extends Fragment {
         setCrawlVisible(true);
 
         scanBtn.setOnClickListener(x -> startScan());
-        stopBtn.setOnClickListener(x -> {
-            cancelRequested = true;
-            statusText.setText(R.string.stopping);
-        });
+        stopBtn.setOnClickListener(x -> requestStop(false));
+        forceBtn.setOnClickListener(x -> requestStop(true));
+        forceBtn.setEnabled(false);
 
         return v;
     }
@@ -155,6 +167,7 @@ public final class ScannerFragment extends Fragment {
         final String ua = SettingsDialog.userAgent(requireContext());
 
         cancelRequested = false;
+        forceKilled = false;
         done = 0;
         total = 0;
         results.clear();
@@ -165,6 +178,10 @@ public final class ScannerFragment extends Fragment {
         statusText.setText(R.string.starting);
 
         executor.execute(() -> {
+            // Record the real thread so STOP can interrupt it. Without this the
+            // interrupt flag was never set anywhere and the scan ran to
+            // completion regardless of what the user pressed.
+            worker = Thread.currentThread();
             try {
                 if (adminMode) {
                     runAdmin(target, wordlist, timeout, ua);
@@ -188,7 +205,11 @@ public final class ScannerFragment extends Fragment {
             } catch (Exception e) {
                 postError(String.valueOf(e.getMessage()));
             } finally {
-                mainHandler.post(this::finishScan);
+                // After a force kill this thread is abandoned and may still unwind
+                // here later. It must not then overwrite the "force killed"
+                // message or re-enable the controls, so the flag decides who
+                // reports the end of the scan.
+                if (!forceKilled) mainHandler.post(this::finishScan);
             }
         });
     }
@@ -260,17 +281,65 @@ public final class ScannerFragment extends Fragment {
         mainHandler.post(() -> statusText.setText(getString(R.string.scan_error, s)));
     }
 
+    /**
+     * Stop the running scan.
+     *
+     * <p>Two tiers, because one was not enough in practice:
+     * <ul>
+     *   <li><b>Stop</b> asks the scan to wind up: sets the flag and interrupts
+     *       the worker, so the core can leave its crawl, pool drain and request
+     *       loop between requests.</li>
+     *   <li><b>Force kill</b> is for the case that actually happened: a target
+     *       parked mid-socket, so interrupting changes nothing and the scan
+     *       appears frozen. That abandons the thread outright, hands the
+     *       executor a fresh one, and lets the UI keep working. The abandoned
+     *       thread dies on its own request timeout; it is never joined.</li>
+     * </ul>
+     */
+    private void requestStop(boolean force) {
+        cancelRequested = true;
+
+        Thread w = worker;
+        if (w != null) w.interrupt();
+
+        if (force) {
+            // Do not wait on the old executor: it may be wedged in a read.
+            executor.shutdownNow();
+            executor = Executors.newSingleThreadExecutor();
+            worker = null;
+            forceKilled = true;
+            setScanning(false);
+            statusText.setText(getString(R.string.force_killed,
+                    results.size()));
+        } else {
+            statusText.setText(R.string.stopping);
+            // If the scan has not finished shortly, escalate rather than
+            // leaving the user watching a dead-looking bar.
+            mainHandler.postDelayed(() -> {
+                if (cancelRequested && worker != null) requestStop(true);
+            }, 3000);
+        }
+    }
+
     private void setScanning(boolean on) {
         scanBtn.setEnabled(!on);
         stopBtn.setEnabled(on);
+        forceBtn.setEnabled(on);
         progressBar.setVisibility(on ? View.VISIBLE : View.GONE);
     }
 
     private void finishScan() {
+        worker = null;
         setScanning(false);
         long vuln = 0;
         for (ScanResult r : results) {
             if (r.verdict == Verdict.VULNERABLE) vuln++;
+        }
+        if (cancelRequested) {
+            // A graceful stop finished on its own; say so rather than claiming a
+            // clean complete run.
+            statusText.setText(getString(R.string.stopped_fmt, results.size()));
+            return;
         }
         statusText.setText(getString(R.string.done_fmt, results.size(), vuln));
     }

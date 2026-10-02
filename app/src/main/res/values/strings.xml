@@ -16,6 +16,9 @@
     <string name="label_wordlist">Wordlist</string>
     <string name="btn_scan">SCAN</string>
     <string name="btn_stop">STOP</string>
+    <string name="btn_force_kill">FORCE KILL</string>
+    <string name="force_killed">Force killed. Kept %1$d result(s).</string>
+    <string name="stopped_fmt">Stopped. Kept %1$d result(s).</string>
     <string name="hint_target">https://example.com/page.php?id=1</string>
 
     <!-- dork -->
@@ -26,6 +29,8 @@
     <string name="label_dork_cx">Google search-engine id (cx)</string>
     <string name="btn_search">SEARCH</string>
     <string name="btn_clear">CLEAR</string>
+    <string name="btn_cancel">CANCEL</string>
+    <string name="dork_cancelled">Search cancelled</string>
     <string name="hint_dork">inurl:admin intitle:login</string>
     <string name="hint_dork_domain">example.com</string>
     <string name="hint_dork_key">Brave or Google API key</string>
