@@ -1,0 +1,77 @@
+name: build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The detection core is plain java.io/java.net, so it is tested on a bare JDK
+  # with no SDK at all. This runs first and fast: if a signature or verdict
+  # regresses, fail here rather than after a 10 minute Android build.
+  core:
+    name: core tests (no SDK)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: build and run suites
+        run: bash build.sh
+
+  apk:
+    name: debug APK
+    runs-on: ubuntu-latest
+    needs: core
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - uses: android-actions/setup-android@v3
+
+      - name: grant sdk licenses
+        run: yes | sdkmanager --licenses > /dev/null 2>&1 || true
+
+      - name: make gradlew executable
+        # shared-storage checkouts can lose the exec bit; a missing one makes
+        # ./gradlew fail with "Permission denied" rather than anything useful.
+        run: chmod +x gradlew
+
+      - uses: gradle/actions/wrapper-validation@v3
+
+      - name: assembleDebug
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: test the debug APK exists and is a real APK
+        run: |
+          set -e
+          apk=$(find app/build/outputs/apk/debug -name '*.apk' | head -1)
+          if [ -z "$apk" ]; then echo "no APK produced"; exit 1; fi
+          echo "built: $apk ($(stat -c%s "$apk") bytes)"
+          unzip -l "$apk" | grep -q 'AndroidManifest.xml' \
+            || { echo "APK has no manifest"; exit 1; }
+          # the adaptive icon and the layouts must have survived aapt
+          unzip -l "$apk" | grep -q 'res/' \
+            || { echo "APK has no resources"; exit 1; }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bugdeck-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
