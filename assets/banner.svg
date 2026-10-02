@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="460" viewBox="0 0 1100 460">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="55%" stop-color="#131a24"/>
+      <stop offset="100%" stop-color="#0a0e14"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#2ee6a8" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#2ee6a8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7ef7c8"/>
+      <stop offset="100%" stop-color="#2ee6a8"/>
+    </linearGradient>
+    <linearGradient id="shellDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1b7f5e"/>
+      <stop offset="100%" stop-color="#0e5238"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2ee6a8"/>
+      <stop offset="50%" stop-color="#7ef7c8"/>
+      <stop offset="100%" stop-color="#2ee6a8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1100" height="460" fill="url(#bg)"/>
+  <ellipse cx="550" cy="215" rx="430" ry="210" fill="url(#glow)"/>
+
+  <!-- scan grid -->
+  <g stroke="#2ee6a8" stroke-opacity="0.05" stroke-width="1">
+    <path d="M0 80 H1100 M0 160 H1100 M0 240 H1100 M0 320 H1100 M0 400 H1100"/>
+    <path d="M110 0 V460 M300 0 V460 M490 0 V460 M680 0 V460 M870 0 V460"/>
+  </g>
+
+  <!-- ================= BUG ================= -->
+  <g transform="translate(215,215)">
+    <!-- legs -->
+    <g stroke="url(#shell)" stroke-width="9" stroke-linecap="round" fill="none">
+      <path d="M-92 -34 L-158 -74"/><path d="M-92 -8 L-166 -20"/>
+      <path d="M-92  18 L-166  26"/><path d="M-92  44 L-158  74"/>
+      <path d="M 92 -34 L 158 -74"/><path d="M 92 -8 L 166 -20"/>
+      <path d="M 92  18 L 166  26"/><path d="M 92  44 L 158  74"/>
+    </g>
+    <!-- antennae -->
+    <g stroke="url(#shell)" stroke-width="8" stroke-linecap="round" fill="none">
+      <path d="M-40 -108 L-72 -152"/><path d="M40 -108 L72 -152"/>
+    </g>
+    <circle cx="-75" cy="-156" r="9" fill="#2ee6a8"/>
+    <circle cx="75" cy="-156" r="9" fill="#2ee6a8"/>
+
+    <!-- body -->
+    <ellipse cx="0" cy="0" rx="104" ry="124" fill="url(#shellDark)"/>
+    <ellipse cx="0" cy="-8" rx="92" ry="110" fill="url(#shell)"/>
+
+    <!-- android face plate -->
+    <rect x="-62" y="-74" width="124" height="150" rx="34" fill="#0d1117" opacity="0.92"/>
+    <!-- eyes -->
+    <circle cx="-27" cy="-26" r="11" fill="#7ef7c8"/>
+    <circle cx="27" cy="-26" r="11" fill="#7ef7c8"/>
+    <circle cx="-27" cy="-26" r="4.5" fill="#0d1117"/>
+    <circle cx="27" cy="-26" r="4.5" fill="#0d1117"/>
+
+    <!-- head split: this is the bug's head, cracked open -->
+    <path d="M-62 -8 H-6" stroke="#0d1117" stroke-width="7" stroke-linecap="round"/>
+    <path d="M6 -8 H62" stroke="#0d1117" stroke-width="7" stroke-linecap="round" opacity="0.35"/>
+
+    <!-- the "bug" part: exposed circuitry / error, drawn as a fault in the shell -->
+    <g opacity="0.95">
+      <path d="M0 16 V58" stroke="#ff5f56" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="0" cy="74" r="9" fill="#ff5f56"/>
+    </g>
+    <!-- crack radiating from the fault -->
+    <g stroke="#ff5f56" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.9">
+      <path d="M0 40 L-26 66"/><path d="M0 40 L26 66"/>
+      <path d="M0 40 L-34 30"/><path d="M0 40 L34 30"/>
+    </g>
+    <!-- shell fragments flying off -->
+    <g fill="#2ee6a8" opacity="0.75">
+      <path d="M96 -84 l16 -8 6 12 -16 8z"/>
+      <path d="M-112 62 l-15 9 -7-12 15-9z"/>
+      <path d="M118 44 l13 10 -9 11 -13-10z"/>
+    </g>
+  </g>
+
+  <!-- ================= TITLE ================= -->
+  <text x="560" y="196" font-family="'DejaVu Sans Mono',monospace" font-size="82"
+        font-weight="bold" letter-spacing="9" fill="url(#title)">BUGDECK</text>
+
+  <text x="562" y="238" font-family="'DejaVu Sans Mono',monospace" font-size="19"
+        letter-spacing="2.2" fill="#8fa3ad">fixed web scanner core</text>
+
+  <!-- rule + badges -->
+  <path d="M560 262 H1020" stroke="#2ee6a8" stroke-opacity="0.30" stroke-width="1.5"/>
+  <g font-family="'DejaVu Sans Mono',monospace" font-size="14" letter-spacing="1.4">
+    <text x="560" y="292" fill="#2ee6a8">differential SQLi</text>
+    <text x="700" y="292" fill="#2ee6a8">soft-404 aware admin finder</text>
+    <text x="560" y="318" fill="#7ef7c8">309 payloads / 14 categories</text>
+    <text x="782" y="318" fill="#7ef7c8">8 wordlists</text>
+  </g>
+
+  <!-- verdict legend -->
+  <g font-family="'DejaVu Sans Mono',monospace" font-size="13">
+    <rect x="560" y="342" width="10" height="10" fill="#ff5f56"/>
+    <text x="578" y="352" fill="#c9d1d9">VULNERABLE</text>
+    <rect x="672" y="342" width="10" height="10" fill="#7ef7c8"/>
+    <text x="690" y="352" fill="#c9d1d9">NOT_VULNERABLE</text>
+    <rect x="836" y="342" width="10" height="10" fill="#ffb86b"/>
+    <text x="854" y="352" fill="#c9d1d9">BLOCKED</text>
+    <rect x="928" y="342" width="10" height="10" fill="#8b949e"/>
+    <text x="946" y="352" fill="#c9d1d9">SKIPPED</text>
+  </g>
+
+  <text x="560" y="392" font-family="'DejaVu Sans Mono',monospace" font-size="13"
+        letter-spacing="1.2" fill="#4d5b66">CLI now  ·  android app when proven</text>
+</svg>

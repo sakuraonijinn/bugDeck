@@ -1,0 +1,21 @@
+# Build output
+build/
+bin/
+out/
+.gradle/
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+local.properties
+
+# Harness/runtime scratch, never part of the project
+.harness/
+verify/out/
+verify/stub/
+verify/.err
+
+# OS noise
+.DS_Store
