@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!--
-      Needed only for the optional Device tab. Without Shizuku the app still
-      installs and every other tab works; logcat and package enumeration are
-      simply unavailable. QUERY_ALL_PACKAGES would be the normal route, but it
-      is Play-restricted, and Shizuku is the whole reason that tab exists.
-    -->
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:allowBackup="true"
@@ -23,8 +13,8 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.BugDeck">
 
-        <!-- The only activity. Scanner / HackBar / Dork / Device are Fragments
-             hosted in a ViewPager2, not separate activities. -->
+        <!-- The only activity. Scanner / HackBar / Dork are Fragments hosted
+             in a ViewPager2, not separate activities. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -34,21 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!--
-          Shizuku hands the app a Binder to the privileged service. This provider
-          is how the handover happens; INTERACT_ACROSS_USERS_FULL on the provider
-          is required by the API and is what stops other apps talking to it.
-          Entirely optional: the app behaves identically without Shizuku
-          installed, it just cannot offer the Device tab.
-        -->
-        <provider
-            android:name="rikka.shizuku.ShizukuProvider"
-            android:authorities="${applicationId}.shizuku"
-            android:enabled="true"
-            android:exported="true"
-            android:multiprocess="false"
-            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     </application>
 

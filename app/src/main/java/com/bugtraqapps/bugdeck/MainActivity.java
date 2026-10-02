@@ -18,7 +18,7 @@ public final class MainActivity extends AppCompatActivity {
     private TabsAdapter adapter;
 
     private static final int[] TAB_TITLES = {
-        R.string.tab_scanner, R.string.tab_hackbar, R.string.tab_dork, R.string.tab_device
+        R.string.tab_scanner, R.string.tab_hackbar, R.string.tab_dork
     };
 
     @Override

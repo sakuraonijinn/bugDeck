@@ -16,7 +16,6 @@ public final class R {
         public static final int item_result        = 5;
         public static final int item_dork_result   = 6;
         public static final int dialog_settings    = 7;
-        public static final int fragment_device     = 8;
     }
 
     public static final class id {
@@ -80,17 +79,6 @@ public final class R {
         public static final int set_ua            = 173;
         // menu
         public static final int action_settings   = 180;
-        // device tab
-        public static final int dev_status      = 190;
-        public static final int dev_detail      = 191;
-        public static final int dev_grant       = 192;
-        public static final int dev_refresh     = 193;
-        public static final int dev_filter      = 194;
-        public static final int dev_logcat      = 195;
-        public static final int dev_apps        = 196;
-        public static final int dev_output      = 197;
-        public static final int dev_output_status = 198;
-        public static final int dev_filterLayout = 199;
     }
 
     public static final class string {
@@ -168,26 +156,6 @@ public final class R {
         public static final int sending               = 267;
         public static final int fetch_failed          = 268;
         public static final int redirected_fmt        = 269;
-        public static final int tab_device          = 275;
-        public static final int shizuku_title       = 276;
-        public static final int shizuku_grant       = 277;
-        public static final int shizuku_ready       = 278;
-        public static final int shizuku_needs_perm  = 279;
-        public static final int shizuku_not_running = 280;
-        public static final int shizuku_missing     = 281;
-        public static final int shizuku_error       = 282;
-        public static final int shizuku_stderr      = 283;
-        public static final int label_logcat_filter = 284;
-        public static final int hint_logcat_filter  = 285;
-        public static final int btn_logcat          = 286;
-        public static final int btn_find_apps       = 287;
-        public static final int btn_refresh         = 288;
-        public static final int working             = 289;
-        public static final int no_matches          = 290;
-        public static final int logcat_done         = 291;
-        public static final int packages_count      = 292;
-        public static final int packages_none_notable = 293;
-        public static final int packages_notable    = 294;
     }
 
     public static final class menu {

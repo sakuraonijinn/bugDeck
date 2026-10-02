@@ -18,13 +18,12 @@ public final class TabsAdapter extends FragmentStateAdapter {
             case 0:  return new ScannerFragment();
             case 1:  return new HackBarFragment();
             case 2:  return new DorkFragment();
-            case 3:  return new DeviceFragment();
             default: throw new IndexOutOfBoundsException("no tab " + position);
         }
     }
 
     @Override
     public int getItemCount() {
-        return 4;
+        return 3;
     }
 }

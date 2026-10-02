@@ -6,7 +6,6 @@
     <string name="tab_scanner">Scanner</string>
     <string name="tab_hackbar">HackBar</string>
     <string name="tab_dork">Dork</string>
-    <string name="tab_device">Device</string>
 
     <!-- scanner -->
     <string name="mode_sqli">SQL Injection</string>
@@ -90,25 +89,4 @@
     <string name="sending">Sending…</string>
     <string name="fetch_failed">Request failed: %1$s</string>
     <string name="redirected_fmt">Redirected to %1$s</string>
-
-    <!-- device tab / shizuku -->
-    <string name="shizuku_title">Shizuku</string>
-    <string name="shizuku_grant">Grant permission</string>
-    <string name="shizuku_ready">Shell access available. Logcat and package enumeration work.</string>
-    <string name="shizuku_needs_perm">Shizuku is running but has not granted permission yet.</string>
-    <string name="shizuku_not_running">Shizuku is installed but its server is not running. Start it from the Shizuku app.</string>
-    <string name="shizuku_missing">Shizuku is not installed or too old. Everything else in BugDeck works without it.</string>
-    <string name="shizuku_error">Shizuku refused the request.</string>
-    <string name="shizuku_stderr">Command failed: %1$s</string>
-    <string name="label_logcat_filter">Logcat filter</string>
-    <string name="hint_logcat_filter">log4j</string>
-    <string name="btn_logcat">READ LOGCAT</string>
-    <string name="btn_find_apps">FIND APPS</string>
-    <string name="btn_refresh">Refresh status</string>
-    <string name="working">Working…</string>
-    <string name="no_matches">No lines matched \"%1$s\".</string>
-    <string name="logcat_done">%1$d matching line(s)</string>
-    <string name="packages_count">Third-party packages: %1$d</string>
-    <string name="packages_none_notable">None of the notable root/analyst packages are installed.</string>
-    <string name="packages_notable">Notable packages found:</string>
 </resources>

@@ -420,9 +420,8 @@ public final class ScannerFragment extends Fragment {
             // Labels come from resources, not literals, so the verdict names are
             // localizable like everything else.
             holder.verdict.setText(holder.itemView.getContext().getString(labelFor(r.verdict)));
-            // The chip style carries the colour. ContextCompat is used rather
-            // than Context.getColor(int) because the latter is API 23 and this
-            // app supports API 24; the compat call is correct either way.
+            // The chip style carries the colour; a ContextCompat lookup keeps this
+            // working on API 21, where Context.getColor(int) does not exist yet.
             android.content.Context ctx = holder.itemView.getContext();
             holder.verdict.setChipBackgroundColor(
                 ColorStateList.valueOf(ContextCompat.getColor(ctx, bgFor(r.verdict))));
