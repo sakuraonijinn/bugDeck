@@ -45,12 +45,25 @@ jobs:
       # android-actions/setup-android@v3 is deliberately NOT used: it runs
       # `sdkmanager tools`, and Google no longer publishes a package by that
       # name, so the action dies with "Failed to find package 'tools'".
-      # The ubuntu-latest image already has a working SDK, so install the
-      # pieces this build actually needs.
-      - name: grant sdk licenses
+      #
+      # The ubuntu-latest image ships an SDK at $ANDROID_HOME, but sdkmanager is
+      # NOT on PATH -- verified on the runner, it lives at
+      # cmdline-tools/latest/bin/sdkmanager. So resolve it explicitly.
+      - name: grant sdk licenses and install SDK packages
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | sort | tail -1)"
+          fi
+          if [ -z "$SDKMANAGER" ] || [ ! -x "$SDKMANAGER" ]; then
+            echo "could not locate sdkmanager under $ANDROID_HOME/cmdline-tools"
+            exit 1
+          fi
+          echo "using $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          # versions match compileSdk/buildToolsVersion in app/build.gradle
+          "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: make gradlew executable
         # shared-storage checkouts can lose the exec bit; a missing one makes
