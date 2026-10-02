@@ -354,8 +354,8 @@
   ]
  },
  "crlf": {
-  "title": "CRLF / header injection",
-  "source": "ho.java",
+  "title": "Log4j / root path probe",
+  "source": "log4j.java",
   "payloads": [
    "/system/app/Superuser.apk",
    "/sbin/su",

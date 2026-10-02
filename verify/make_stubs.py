@@ -370,6 +370,8 @@ public class Fragment {
     public void onViewCreated(View v, Bundle savedInstanceState) {}
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) { return null; }
     public void onDestroy() {}
+    public void onResume() {}
+    public View getView() { return null; }
     public Context requireContext() { return null; }
     public Activity getActivity() { return null; }
     public <T> T requireActivity() { return null; }
@@ -623,6 +625,38 @@ w("android/content/res/ColorStateList.java", """
 package android.content.res;
 public class ColorStateList {
     public static ColorStateList valueOf(int color) { return new ColorStateList(); }
+}
+""")
+
+w("android/content/pm/PackageManager.java", """
+package android.content.pm;
+public class PackageManager {
+    public static final int PERMISSION_GRANTED = 0;
+    public static final int PERMISSION_DENIED = -1;
+}
+""")
+w("android/content/pm/ApplicationInfo.java", """
+package android.content.pm;
+public class ApplicationInfo { public String packageName; }
+""")
+w("android/content/pm/PackageInfo.java", """
+package android.content.pm;
+public class PackageInfo { public String packageName; public ApplicationInfo applicationInfo; }
+""")
+w("android/os/RemoteCallback.java", "public class RemoteCallback {}\n")
+w("android/os/RemoteException.java", "public class RemoteException extends Exception {}\n")
+
+# rikka.shizuku is a real gradle dependency; the stub only exists so the GUI
+# typecheck can resolve the direct import. All actual use goes through
+# reflection in ShizukuState so the app never hard-depends on it at runtime.
+w("rikka/shizuku/Shizuku.java", """
+package rikka.shizuku;
+import android.content.Context;
+public class Shizuku {
+    public static boolean pingBinder() { return false; }
+    public static int checkSelfPermission() { return -1; }
+    public static void requestPermission(int code) {}
+    public static void addRequestPermissionResultListener(Object l) {}
 }
 """)
 

@@ -50,6 +50,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // Shizuku is OPTIONAL. BugDeck installs and runs without it; only the
+    // Device tab is unavailable. Never a hard requirement.
+    implementation 'dev.rikka.shizuku:api:13.1.5'
+    implementation 'dev.rikka.shizuku:provider:13.1.5'
     // No jsoup: the core parses HTML with regex on purpose, so it stays inside
     // the ApiTest "no desktop-only APIs" guarantee. See core/HtmlLinks.java.
 }
