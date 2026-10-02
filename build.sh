@@ -84,6 +84,12 @@ rm -rf "$OUT/.coreonly" "$OUT/.err" "$OUT/.last"
 # with an empty source list and reports "0 app source(s) typecheck", i.e. green
 # while checking nothing.
 if [ -d "$HERE/app/src/main/java" ]; then
+  echo "==> checking Android resources"
+  if ! python3 "$HERE/verify/check_res.py" 2>&1 | sed 's/^/  /'; then
+    echo "RESOURCE CHECK FAILED"
+    exit 1
+  fi
+
   echo "==> typechecking the Android GUI"
   if ! sh "$HERE/verify/check.sh" 2>&1 | sed 's/^/  /'; then
     echo "GUI TYPECHECK FAILED"

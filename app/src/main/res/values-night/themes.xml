@@ -43,8 +43,8 @@
         <item name="colorOnSurfaceInverse">@color/md_inverse_on_surface_dark</item>
         <item name="colorPrimaryInverse">@color/md_inverse_primary_dark</item>
 
-        <item name="android:statusBarColor">@color/md_surface_container_low</item>
-        <item name="android:navigationBarColor">@color/md_surface_container_low</item>
+        <item name="android:statusBarColor">@color/md_surface_container_low_dark</item>
+        <item name="android:navigationBarColor">@color/md_surface_container_low_dark</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
 

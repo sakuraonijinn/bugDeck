@@ -76,9 +76,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:hint="@string/label_generated"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_copy"
-        app:endIconContentDescription="@string/btn_copy"
         app:endIconMode="clear_text">
 
         <com.google.android.material.textfield.TextInputEditText

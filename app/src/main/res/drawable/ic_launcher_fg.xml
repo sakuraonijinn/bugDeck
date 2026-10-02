@@ -9,7 +9,7 @@
 
       Two earlier drafts failed the same way and the reasons are worth keeping:
         * a knot filled in the background colour is invisible, leaving only its
-          inner band visible -- at 48px that read as a mouth;
+          inner band visible; at 48px that read as a mouth;
         * loops wide enough to overlap the knot turn the whole thing into a
           mushroom. The loops must stop short of the knot and stay clearly
           narrower than it is tall.
