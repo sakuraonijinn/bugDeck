@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      Material 3 role mapping.
+
+      The app previously defined only colorPrimary/colorOnPrimary/colorSecondary,
+      which left every other Material component (cards, chips, text fields,
+      navigation) falling back to Material's default purple. All 17 roles are
+      mapped here, split across values/ and values-night/, so the framework has a
+      complete palette and the crimson/blush/charcoal identity holds in both
+      light and dark.
+
+      A night-qualified themes.xml overrides these same keys for dark mode; it
+      does not need to repeat the whole file.
+    -->
+
+    <style name="Theme.BugDeck" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/md_primary_light</item>
+        <item name="colorOnPrimary">@color/md_on_primary_light</item>
+        <item name="colorPrimaryContainer">@color/md_primary_container_light</item>
+        <item name="colorOnPrimaryContainer">@color/md_on_primary_container_light</item>
+
+        <item name="colorSecondary">@color/md_secondary_light</item>
+        <item name="colorOnSecondary">@color/md_on_secondary_light</item>
+        <item name="colorSecondaryContainer">@color/md_secondary_container_light</item>
+        <item name="colorOnSecondaryContainer">@color/md_on_secondary_container_light</item>
+
+        <item name="colorTertiary">@color/md_tertiary_light</item>
+        <item name="colorOnTertiary">@color/md_on_tertiary_light</item>
+        <item name="colorTertiaryContainer">@color/md_tertiary_container_light</item>
+        <item name="colorOnTertiaryContainer">@color/md_on_tertiary_container_light</item>
+
+        <item name="colorError">@color/md_error_light</item>
+        <item name="colorOnError">@color/md_on_error_light</item>
+        <item name="colorErrorContainer">@color/md_error_container_light</item>
+        <item name="colorOnErrorContainer">@color/md_on_error_container_light</item>
+
+        <item name="android:colorBackground">@color/md_background_light</item>
+        <item name="colorOnBackground">@color/md_on_background_light</item>
+        <item name="colorSurface">@color/md_surface_light</item>
+        <item name="colorOnSurface">@color/md_on_surface_light</item>
+        <item name="colorSurfaceVariant">@color/md_surface_variant_light</item>
+        <item name="colorOnSurfaceVariant">@color/md_on_surface_variant_light</item>
+        <item name="colorSurfaceContainerLowest">@color/md_surface_container_lowest_light</item>
+        <item name="colorSurfaceContainerLow">@color/md_surface_container_low_light</item>
+        <item name="colorSurfaceContainer">@color/md_surface_container_light</item>
+        <item name="colorSurfaceContainerHigh">@color/md_surface_container_high_light</item>
+        <item name="colorSurfaceContainerHighest">@color/md_surface_container_highest_light</item>
+        <item name="colorOutline">@color/md_outline_light</item>
+        <item name="colorOutlineVariant">@color/md_outline_variant_light</item>
+        <item name="colorSurfaceInverse">@color/md_inverse_surface_light</item>
+        <item name="colorOnSurfaceInverse">@color/md_inverse_on_surface_light</item>
+        <item name="colorPrimaryInverse">@color/md_inverse_primary_light</item>
+
+        <!-- system bars follow the surface, not the brand colour, so content
+             scrolling under them stays readable -->
+        <item name="android:statusBarColor">@color/md_surface_container_low</item>
+        <item name="android:navigationBarColor">@color/md_surface_container_low</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <item name="materialAlertDialogTheme">@style/Theme.BugDeck.Dialog</item>
+    </style>
+
+    <!--
+      Verdict chips. Each is a filled container + on-container label, which is
+      the Material 3 way to show a state. The label text carries the meaning;
+      the colour is reinforcement, so these stay legible for colour-blind users
+      and in greyscale.
+    -->
+    <style name="Widget.BugDeck.VerdictChip" parent="Widget.Material3.Chip.Assist">
+        <item name="chipMinHeight">28dp</item>
+        <item name="chipStartPadding">10dp</item>
+        <item name="chipEndPadding">10dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+    </style>
+
+    <style name="Widget.BugDeck.VerdictChip.Vulnerable">
+        <item name="chipBackgroundColor">@color/verdict_vulnerable_bg</item>
+        <item name="android:textColor">@color/verdict_vulnerable</item>
+    </style>
+
+    <style name="Widget.BugDeck.VerdictChip.Clean">
+        <item name="chipBackgroundColor">@color/verdict_clean_bg</item>
+        <item name="android:textColor">@color/verdict_clean</item>
+    </style>
+
+    <style name="Widget.BugDeck.VerdictChip.Blocked">
+        <item name="chipBackgroundColor">@color/verdict_blocked_bg</item>
+        <item name="android:textColor">@color/verdict_blocked</item>
+    </style>
+
+    <style name="Widget.BugDeck.VerdictChip.Skipped">
+        <item name="chipBackgroundColor">@color/verdict_skipped_bg</item>
+        <item name="android:textColor">@color/verdict_skipped</item>
+    </style>
+
+    <!-- result row -->
+    <style name="Widget.BugDeck.ResultCard" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+        <item name="rippleColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Widget.BugDeck.InputCard" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
+    </style>
+
+    <style name="Theme.BugDeck.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.BugDeck.Dialog</item>
+    </style>
+
+    <style name="ShapeAppearance.BugDeck.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <!-- The tab strip sits on the same surface as the toolbar. -->
+    <style name="Widget.BugDeck.Tabs" parent="Widget.Material3.TabLayout">
+        <item name="tabIndicatorColor">?attr/colorPrimary</item>
+        <item name="tabSelectedTextColor">?attr/colorPrimary</item>
+        <item name="tabTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="tabTextAppearance">?attr/textAppearanceLabelLarge</item>
+    </style>
+
+    <style name="Widget.BugDeck.StatusText" parent="">
+        <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Widget.BugDeck.SectionLabel" parent="">
+        <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+</resources>

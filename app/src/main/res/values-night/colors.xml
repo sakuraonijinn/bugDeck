@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark scheme counterparts of values/colors.xml, generated the same way:
+         the same crimson family, with surfaces desaturated toward charcoal so
+         the verdict colours keep enough contrast to stay readable. -->
+
+    <color name="md_primary_dark">#FFFFB4AB</color>
+    <color name="md_on_primary_dark">#FF690005</color>
+    <color name="md_primary_container_dark">#FF93000A</color>
+    <color name="md_on_primary_container_dark">#FFFFDAD6</color>
+
+    <color name="md_secondary_dark">#FFE7BDB8</color>
+    <color name="md_on_secondary_dark">#FF442926</color>
+    <color name="md_secondary_container_dark">#FF5D3F3B</color>
+    <color name="md_on_secondary_container_dark">#FFFFDAD6</color>
+
+    <color name="md_tertiary_dark">#FFE1C38C</color>
+    <color name="md_on_tertiary_dark">#FF3F2E04</color>
+    <color name="md_tertiary_container_dark">#FF574519</color>
+    <color name="md_on_tertiary_container_dark">#FFFFDEA6</color>
+
+    <color name="md_error_dark">#FFFFB4AB</color>
+    <color name="md_on_error_dark">#FF690005</color>
+    <color name="md_error_container_dark">#FF93000A</color>
+    <color name="md_on_error_container_dark">#FFFFDAD6</color>
+
+    <color name="md_background_dark">#FF201A1A</color>
+    <color name="md_on_background_dark">#FFEDE0DE</color>
+    <color name="md_surface_dark">#FF201A1A</color>
+    <color name="md_on_surface_dark">#FFEDE0DE</color>
+    <color name="md_surface_variant_dark">#FF534341</color>
+    <color name="md_on_surface_variant_dark">#FFD8C2BF</color>
+    <color name="md_outline_dark">#FFA08C8A</color>
+    <color name="md_outline_variant_dark">#FF534341</color>
+    <color name="md_inverse_surface_dark">#FFEDE0DE</color>
+    <color name="md_inverse_on_surface_dark">#FF362F2F</color>
+    <color name="md_inverse_primary_dark">#FFB3261E</color>
+    <color name="md_surface_container_dark">#FF271F1E</color>
+    <color name="md_surface_container_high_dark">#FF322A29</color>
+    <color name="md_surface_container_highest_dark">#FF3D3433</color>
+    <color name="md_surface_container_low_dark">#FF211B1B</color>
+    <color name="md_surface_container_lowest_dark">#FF1B1615</color>
+
+    <color name="verdict_vulnerable_dark">#FFFFB4AB</color>
+    <color name="verdict_vulnerable_bg_dark">#FF93000A</color>
+    <color name="verdict_clean_dark">#FFA8D5AA</color>
+    <color name="verdict_clean_bg_dark">#FF1B4620</color>
+    <color name="verdict_blocked_dark">#FFFFB95C</color>
+    <color name="verdict_blocked_bg_dark">#FF5C3B00</color>
+    <color name="verdict_skipped_dark">#FFC9C5C4</color>
+    <color name="verdict_skipped_bg_dark">#FF3D3433</color>
+
+    <color name="onSurfaceMuted">#FFD8C2BF</color>
+</resources>

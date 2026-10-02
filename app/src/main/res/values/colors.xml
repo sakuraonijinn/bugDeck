@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Palette derived from the reference art: crimson ribbon, white fabric,
+      pale blush ground, charcoal accents.
+
+      These are the LIGHT scheme seeds. values-night/colors.xml holds the dark
+      counterparts, and themes.xml maps both onto Material3's full role set so
+      the framework (and any Material You dynamic colour) has a complete
+      palette to work with rather than the two tokens this app used to define.
+    -->
+
+    <!-- brand seeds -->
+    <color name="crimson">#FFC62828</color>
+    <color name="crimson_dark">#FF8E1414</color>
+    <color name="crimson_deep">#FF5C0E0E</color>
+    <color name="blush">#FFFBE4E4</color>
+    <color name="blush_soft">#FFF7DADA</color>
+    <color name="charcoal">#FF2B2224</color>
+    <color name="charcoal_soft">#FF4A3C3F</color>
+    <color name="white_cloth">#FFFFFFFF</color>
+
+    <!-- primary: the ribbon red. Held constant across light and dark so the
+         app keeps its identity regardless of the wallpaper. -->
+    <color name="md_primary_light">#FFB3261E</color>
+    <color name="md_on_primary_light">#FFFFFFFF</color>
+    <color name="md_primary_container_light">#FFFFDAD6</color>
+    <color name="md_on_primary_container_light">#FF410002</color>
+
+    <color name="md_secondary_light">#FF775652</color>
+    <color name="md_on_secondary_light">#FFFFFFFF</color>
+    <color name="md_secondary_container_light">#FFFFDAD6</color>
+    <color name="md_on_secondary_container_light">#FF2C1512</color>
+
+    <color name="md_tertiary_light">#FF725B2E</color>
+    <color name="md_on_tertiary_light">#FFFFFFFF</color>
+    <color name="md_tertiary_container_light">#FFFFDEA6</color>
+    <color name="md_on_tertiary_container_light">#FF271900</color>
+
+    <color name="md_error_light">#FFBA1A1A</color>
+    <color name="md_on_error_light">#FFFFFFFF</color>
+    <color name="md_error_container_light">#FFFFDAD6</color>
+    <color name="md_on_error_container_light">#FF410002</color>
+
+    <color name="md_background_light">#FFFFFBFF</color>
+    <color name="md_on_background_light">#FF201A1A</color>
+    <color name="md_surface_light">#FFFFFBFF</color>
+    <color name="md_on_surface_light">#FF201A1A</color>
+    <color name="md_surface_variant_light">#FFF5DDDA</color>
+    <color name="md_on_surface_variant_light">#FF534341</color>
+    <color name="md_outline_light">#FF857372</color>
+    <color name="md_outline_variant_light">#FFD8C2BF</color>
+    <color name="md_inverse_surface_light">#FF362F2F</color>
+    <color name="md_inverse_on_surface_light">#FFFBEEEC</color>
+    <color name="md_inverse_primary_light">#FFFFB4AB</color>
+    <color name="md_surface_container_light">#FFFCEAE7</color>
+    <color name="md_surface_container_high_light">#FFF7E4E1</color>
+    <color name="md_surface_container_highest_light">#FFF1DFDC</color>
+    <color name="md_surface_container_low_light">#FFFFF1EF</color>
+    <color name="md_surface_container_lowest_light">#FFFFFFFF</color>
+
+    <!--
+      Verdict colours. These deliberately do NOT reuse the brand crimson for
+      VULNERABLE, because crimson is also the app chrome: a red badge on a red
+      theme reads as decoration, not as a finding. Hitting red here is a
+      deeper, more saturated red that survives sitting on a crimson toolbar.
+
+      Hue AND lightness both separate these, so a colour-blind user can still
+      tell them apart. The word on the label is the real signal; colour is
+      reinforcement only.
+    -->
+    <color name="verdict_vulnerable">#FFC0001B</color>
+    <color name="verdict_vulnerable_bg">#FFFFDAD6</color>
+    <color name="verdict_clean">#FF1B5E20</color>
+    <color name="verdict_clean_bg">#FFC8E6C9</color>
+    <color name="verdict_blocked">#FF8A5100</color>
+    <color name="verdict_blocked_bg">#FFFFE0B2</color>
+    <color name="verdict_skipped">#FF5D5C5C</color>
+    <color name="verdict_skipped_bg">#FFE6E3E1</color>
+
+    <!-- kept for the CLI/status text; not used as a verdict colour -->
+    <color name="onSurfaceMuted">#FF534341</color>
+</resources>

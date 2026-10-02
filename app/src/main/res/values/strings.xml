@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BugDeck</string>
+
+    <!-- tabs -->
+    <string name="tab_scanner">Scanner</string>
+    <string name="tab_hackbar">HackBar</string>
+    <string name="tab_dork">Dork</string>
+
+    <!-- scanner -->
+    <string name="mode_sqli">SQL Injection</string>
+    <string name="mode_admin">Admin Panel Finder</string>
+    <string name="source_crawl">Crawl the site first</string>
+    <string name="label_target">Target URL</string>
+    <string name="label_depth">Depth</string>
+    <string name="label_wordlist">Wordlist</string>
+    <string name="btn_scan">SCAN</string>
+    <string name="btn_stop">STOP</string>
+    <string name="hint_target">https://example.com/page.php?id=1</string>
+
+    <!-- dork -->
+    <string name="label_dork_query">Dork expression</string>
+    <string name="label_dork_domain">Domain (optional)</string>
+    <string name="label_provider">Search engine</string>
+    <string name="label_dork_key">API key</string>
+    <string name="label_dork_cx">Google search-engine id (cx)</string>
+    <string name="btn_search">SEARCH</string>
+    <string name="btn_clear">CLEAR</string>
+    <string name="hint_dork">inurl:admin intitle:login</string>
+    <string name="hint_dork_domain">example.com</string>
+    <string name="hint_dork_key">Brave or Google API key</string>
+    <string name="hint_dork_cx">Search engine id</string>
+    <string name="pages_fmt_default">2 pages</string>
+    <string name="pages_fmt">%1$d pages</string>
+
+    <!-- hackbar -->
+    <string name="label_hackbar_target">Target URL</string>
+    <string name="label_hackbar_category">Payload category</string>
+    <string name="label_hackbar_payload">Payload</string>
+    <string name="label_generated">Generated URL</string>
+    <string name="label_response">Response</string>
+    <string name="btn_send">SEND</string>
+    <string name="btn_copy">COPY URL</string>
+
+    <!-- settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_brave">Brave Search API key</string>
+    <string name="settings_google">Google API key</string>
+    <string name="settings_google_hint">Google Cloud API key</string>
+    <string name="settings_cx">Google search-engine id (cx)</string>
+    <string name="settings_ua">User-Agent</string>
+    <string name="settings_ua_hint">Sent with every request</string>
+    <string name="settings_note">The keyless engines (bing, ddg, mojeek, startpage, searxng) need no key at all.</string>
+
+    <!-- verdicts: the label is the real signal, colour only reinforces it -->
+    <string name="v_vulnerable">VULNERABLE</string>
+    <string name="v_not_vulnerable">CLEAN</string>
+    <string name="v_blocked">BLOCKED</string>
+    <string name="v_skipped">SKIPPED</string>
+    <string name="v_error">ERROR</string>
+
+    <string name="copied">Copied</string>
+    <string name="status_fmt">HTTP %1$d</string>
+    <string name="status_base_fmt"> (baseline %1$d)</string>
+
+    <string name="need_target">Enter a target URL first</string>
+    <string name="starting">Starting…</string>
+    <string name="stopping">Stopping…</string>
+    <string name="progress_fmt">Scanned %1$d / %2$d</string>
+    <string name="crawled">Crawled %1$d urls from %2$d pages</string>
+    <string name="done_fmt">Done. %1$d results, %2$d vulnerable.</string>
+    <string name="scan_error">Error: %1$s</string>
+    <string name="wordlist_missing">Wordlist not found: %1$s</string>
+    <string name="wordlist_empty">Wordlist is empty: %1$s</string>
+
+    <string name="dork_need_query">Enter a dork expression or a domain</string>
+    <string name="dork_need_cx">Google Programmable Search needs a search-engine id (cx)</string>
+    <string name="dork_searching">Searching…</string>
+    <string name="dork_found">Found %1$d results</string>
+    <string name="dork_failed">Search failed: %1$s</string>
+
+    <string name="payloads_missing">Could not read payloads.json from assets</string>
+    <string name="need_generated_url">No URL generated yet</string>
+    <string name="sending">Sending…</string>
+    <string name="fetch_failed">Request failed: %1$s</string>
+    <string name="redirected_fmt">Redirected to %1$s</string>
+</resources>
