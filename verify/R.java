@@ -79,6 +79,13 @@ public final class R {
         public static final int set_ua            = 173;
         // menu
         public static final int action_settings   = 180;
+        public static final int deviceServer       = 181;
+        public static final int deviceToken        = 182;
+        public static final int deviceLinkStatus   = 183;
+        public static final int scanLocal           = 184;
+        public static final int scanRemote          = 185;
+        public static final int deviceFindings      = 186;
+        public static final int deviceRemotePanel   = 187;
     }
 
     public static final class string {
@@ -134,7 +141,8 @@ public final class R {
         public static final int v_skipped             = 244;
         public static final int v_error               = 245;
         public static final int no_evidence           = 246;
-        public static final int copied                = 247;        public static final int status_fmt            = 248;
+        public static final int copied                = 247;
+        public static final int status_fmt            = 248;
         public static final int status_base_fmt       = 249;
         public static final int need_target           = 250;
         public static final int starting              = 251;
@@ -156,6 +164,21 @@ public final class R {
         public static final int sending               = 267;
         public static final int fetch_failed          = 268;
         public static final int redirected_fmt        = 269;
+        public static final int tab_device            = 270;
+        public static final int device_local_title    = 271;
+        public static final int device_remote_title   = 272;
+        public static final int device_server_hint    = 273;
+        public static final int device_token_hint     = 274;
+        public static final int device_unlinked       = 275;
+        public static final int device_linked         = 276;
+        public static final int device_link_first     = 277;
+        public static final int device_scan_local     = 278;
+        public static final int device_scan_remote    = 279;
+        public static final int device_scanning       = 280;
+        public static final int device_scanning_remote = 281;
+        public static final int device_scan_error     = 282;
+        public static final int device_findings       = 283;
+        public static final int device_remote_no_results = 284;
     }
 
     public static final class menu {

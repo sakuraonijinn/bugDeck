@@ -1,0 +1,88 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Deployment target'
+        required: true
+        default: 'railway'
+        type: choice
+        options:
+          - railway
+          - render
+          - docker
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.platform }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        if: github.event.inputs.platform == 'docker'
+
+      - name: Build Docker image
+        if: github.event.inputs.platform == 'docker'
+        uses: docker/build-push-action@v5
+        with:
+          context: bugxhunter
+          push: false
+          tags: bugxhunter:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to Railway
+        if: github.event.inputs.platform == 'railway'
+        run: |
+          echo "Deploy to Railway:"
+          echo "1. Go to https://railway.com"
+          echo "2. Click 'New Project'"
+          echo "3. Choose 'Dockerfile from repo'"
+          echo "4. Select your repo"
+          echo "5. Dockerfile path: bugxhunter/Dockerfile"
+          echo "6. Deploy!"
+          echo ""
+          echo "Your URL will be: https://bugxhunter-<random>.railway.app"
+
+      - name: Deploy to Render
+        if: github.event.inputs.platform == 'render'
+        run: |
+          echo "Deploy to Render:"
+          echo "1. Go to https://render.com"
+          echo "2. Click 'New Web Service'"
+          echo "3. Connect your GitHub repo"
+          echo "4. Set:"
+          echo "   - Build Command: (none, use Dockerfile)"
+          echo "   - Dockerfile path: bugxhunter/Dockerfile"
+          echo "   - Port: 7080"
+          echo "5. Deploy!"
+          echo ""
+          echo "Your URL will be: https://bugxhunter.onrender.com"
+
+      - name: Show deployment instructions
+        run: |
+          echo "=== BugXhunter Deployment Complete ==="
+          echo ""
+          echo "After deploying, configure BugDeck:"
+          echo "  Server URL: <your-deployed-url>:7080"
+          echo "  Auth token: testtoken12345"
+          echo ""
+          echo "Test the server:"
+          echo "  curl -H 'X-Auth-Token: testtoken12345' <your-deployed-url>:7080/status"
+          echo ""
+          echo "=== Quick Start Commands ==="
+          echo ""
+          echo "# Railway:"
+          echo "curl -fsSL https://railway.com/new.sh | sh"
+          echo "railway new bugxhunter"
+          echo "railway add dockerfile --path bugxhunter/Dockerfile"
+          echo "railway up"
+          echo ""
+          echo "# Render:"
+          echo "curl -fsSL https://render.com/docs/deploy-php-github | sh"
+          echo "# Or use the web UI at render.com"

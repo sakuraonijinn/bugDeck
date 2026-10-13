@@ -6,6 +6,24 @@
     <string name="tab_scanner">Scanner</string>
     <string name="tab_hackbar">HackBar</string>
     <string name="tab_dork">Dork</string>
+    <string name="tab_frida">Frida</string>
+    <string name="frida_status">Frida server: %1$s</string>
+    <string name="frida_start">Start Frida</string>
+    <string name="frida_stop">Stop Frida</string>
+    <string name="frida_refresh">Refresh Devices</string>
+    <string name="frida_load_example">Load example script</string>
+    <string name="frida_run">Run Script</string>
+    <string name="frida_target_device">Target device:</string>
+    <string name="frida_target_process">Target process:</string>
+    <string name="frida_script_hint">JavaScript code</string>
+    <string name="frida_output">Output:</string>
+    <string name="frida_quick_scripts">Quick scripts:</string>
+    <string name="frida_quick_enumerate_classes">Enumerate loaded classes</string>
+    <string name="frida_quick_hook_methods">Hook all methods in class</string>
+    <string name="frida_quick_dump_heap">Dump heap</string>
+    <string name="frida_quick_bypass_root">Bypass root check</string>
+    <string name="frida_not_connected">Not connected</string>
+    <string name="frida_not_connected_long">Connect to bugXhunter first</string>
 
     <!-- scanner -->
     <string name="mode_sqli">SQL Injection</string>
@@ -89,4 +107,21 @@
     <string name="sending">Sending…</string>
     <string name="fetch_failed">Request failed: %1$s</string>
     <string name="redirected_fmt">Redirected to %1$s</string>
+
+    <!-- device / security posture -->
+    <string name="tab_device">Device</string>
+    <string name="device_local_title">Local posture</string>
+    <string name="device_remote_title">Remote target</string>
+    <string name="device_server_hint">bugXhunter server URL</string>
+    <string name="device_token_hint">Auth token</string>
+    <string name="device_unlinked">Server not linked</string>
+    <string name="device_linked">Linked to %1$s</string>
+    <string name="device_link_first">Link a server first</string>
+    <string name="device_scan_local">Scan this device</string>
+    <string name="device_scan_remote">Scan enrolled device</string>
+    <string name="device_scanning">Scanning…</string>
+    <string name="device_scanning_remote">Scanning remote target…</string>
+    <string name="device_scan_error">Error: %1$s</string>
+    <string name="device_findings">Findings</string>
+    <string name="device_remote_no_results">Remote device returned no results</string>
 </resources>

@@ -27,6 +27,8 @@ public final class SettingsDialog {
     private static final String K_CX = "google_cse_id";
     private static final String K_UA = "user_agent";
     private static final String K_TIMEOUT = "timeout_ms";
+    private static final String K_UNIFIED_HOST = "unified_host";
+    private static final String K_UNIFIED_TOKEN = "unified_token";
 
     private SettingsDialog() {}
 
@@ -47,6 +49,9 @@ public final class SettingsDialog {
         int t = prefs(c).getInt(K_TIMEOUT, 8000);
         return (t < 1000 || t > 120000) ? 8000 : t;
     }
+
+    public static String unifiedHost(Context c) { return prefs(c).getString(K_UNIFIED_HOST, ""); }
+    public static String unifiedToken(Context c) { return prefs(c).getString(K_UNIFIED_TOKEN, ""); }
 
     /** Push the saved cx into the core, which reads it from a static holder. */
     public static void applyToCore(Context c) {
