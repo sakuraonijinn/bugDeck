@@ -87,12 +87,12 @@ jobs:
   #        unzip -l "$apk" | grep -q 'res/' \
      #       || { echo "APK has no resources"; exit 1; }
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: bugdeck-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-          retention-days: 30
+     #background:  - uses: actions/upload-artifact@v4
+    #    with:
+       #   name: bugdeck-debug-apk
+       #   path: app/build/outputs/apk/debug/*.apk
+          #if-no-files-found: error
+        #  retention-days: 30
 
   # Deploy bugXhunter server as a GitHub-hosted service
   # Uses a scheduled job that runs bugXhunter in a container
