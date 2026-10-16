@@ -1,7 +1,7 @@
 package com.bugtraqapps.bugdeck;
 
 import com.bugtraqapps.bugdeck.core.Fetcher;
-import com.bugtraqapps.bugdeck.core.SecurityCheck;
+import com.bugtraqapps.bugdeck.SecurityCheck;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -107,8 +107,7 @@ public final class UnifiedClient {
     public boolean fridaStart() {
         Fetcher.Fetch f = post(baseUrl + "/frida/start", "", new Fetcher.Opts()
                 .ua(Fetcher.DEFAULT_UA).timeout(timeoutMs)
-                .header("X-Auth-Token", token)
-                .contentType("text/plain"));
+                .header("X-Auth-Token", token));
         return f.ok() && f.status == 200;
     }
 

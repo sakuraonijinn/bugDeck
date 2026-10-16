@@ -9,9 +9,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.card.MaterialCardView;
@@ -68,8 +70,8 @@ public class DeviceFragment extends Fragment {
         findingsList = view.findViewById(R.id.deviceFindings);
         remotePanel  = view.findViewById(R.id.deviceRemotePanel);
 
-        String saved = SettingsDialog.get(requireContext(), SettingsDialog.KEY_UNIFIED_HOST, "");
-        String tok   = SettingsDialog.get(requireContext(), SettingsDialog.KEY_UNIFIED_TOKEN, "");
+        String saved = SettingsDialog.get(requireContext(), SettingsDialog.K_UNIFIED_HOST, "");
+        String tok   = SettingsDialog.get(requireContext(), SettingsDialog.K_UNIFIED_TOKEN, "");
         if (!saved.isEmpty()) serverInput.setText(saved);
         if (!tok.isEmpty())   tokenInput.setText(tok);
 
@@ -214,11 +216,11 @@ public class DeviceFragment extends Fragment {
 
     private int colorFor(SecurityCheck.Finding.Level lvl) {
         switch (lvl) {
-            case CRITICAL: return R.color.vuln;
-            case HIGH:     return R.color.vuln;
-            case MEDIUM:   return R.color.warn;
-            case LOW:      return R.color.skip;
-            default:       return R.color.safe;
+            case CRITICAL: return R.color.verdict_vulnerable;
+            case HIGH:     return R.color.verdict_vulnerable;
+            case MEDIUM:   return R.color.verdict_blocked;
+            case LOW:      return R.color.verdict_skipped;
+            default:       return R.color.verdict_clean;
         }
     }
 }

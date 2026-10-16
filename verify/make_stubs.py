@@ -139,6 +139,7 @@ public class ViewGroup extends View {
         public MarginLayoutParams(int w, int h) { super(w, h); }
     }
     public void addView(View child) {}
+    public void addView(View child, LayoutParams params) {}
     public void removeAllViews() {}
 }
 """)
@@ -623,6 +624,44 @@ w("android/content/res/ColorStateList.java", """
 package android.content.res;
 public class ColorStateList {
     public static ColorStateList valueOf(int color) { return new ColorStateList(); }
+}
+""")
+
+w("androidx/core/content/ContextCompat.java", """
+package androidx.core.content;
+import android.content.Context;
+public class ContextCompat {
+    public static int getColor(Context context, int id) { return 0; }
+    public static String getString(Context context, int id) { return ""; }
+}
+""")
+
+# ---------------------------------------------------------------- android.webkit
+w("android/webkit/WebView.java", """
+package android.webkit;
+import android.content.Context;
+public class WebView extends android.view.View {
+    public WebView(Context context) { super(context); }
+    public android.webkit.WebSettings getSettings() { return new android.webkit.WebSettings(); }
+    public void loadUrl(String url) {}
+    public void setWebViewClient(WebViewClient client) {}
+    public void destroy() {}
+}
+""")
+w("android/webkit/WebSettings.java", """
+package android.webkit;
+public class WebSettings {
+    public void setJavaScriptEnabled(boolean enabled) {}
+    public void setDomStorageEnabled(boolean enabled) {}
+    public void setAllowFileAccess(boolean enabled) {}
+    public void setAllowContentAccess(boolean enabled) {}
+}
+""")
+w("android/webkit/WebViewClient.java", """
+package android.webkit;
+import android.view.View;
+public class WebViewClient {
+    public void onPageFinished(WebView view, String url) {}
 }
 """)
 

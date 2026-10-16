@@ -209,7 +209,7 @@ public final class SecurityCheck {
     private static void checkSuspiciousProcesses(List<Finding> out) {
         List<String> suspicious = new ArrayList<>();
         try {
-            Process p = Runtime.getRuntime().exec("ps -A");
+            java.lang.Process p = Runtime.getRuntime().exec("ps -A");
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
             Pattern frida = Pattern.compile("frida", Pattern.CASE_INSENSITIVE);
@@ -238,7 +238,7 @@ public final class SecurityCheck {
             int shown = 0;
             for (String s : suspicious) {
                 if (++shown > 5) break;
-                Level lvl = Finding.Level.MEDIUM;
+                Finding.Level lvl = Finding.Level.MEDIUM;
                 if (s.contains("frida")) lvl = Finding.Level.HIGH;
                 else if (s.contains("su")) lvl = Finding.Level.CRITICAL;
                 out.add(new Finding(lvl, "processes", s));
@@ -255,7 +255,7 @@ public final class SecurityCheck {
         List<String> listeners = new ArrayList<>();
         try {
             BufferedReader r = new BufferedReader(new InputStreamReader(
-                    new File("/proc/net/tcp").openStream()));
+        new File("/proc/net/tcp")));
             String header = r.readLine(); // skip header
             String line;
             Pattern p = Pattern.compile(
