@@ -596,7 +596,18 @@ import android.content.Context;
 import android.widget.EditText;
 public class TextInputEditText extends EditText { public TextInputEditText(Context c) { super(c); } }
 """)
-w("com/google/android/material/card/MaterialCardView.java", """
+w("com/google/android/material/R.java", """
+package com.google.android.material;
+public class R {
+    public static final class style {
+        public static final int TextAppearance_Material3_BodyMedium = 1;
+        public static final int TextAppearance_Material3_HeadlineSmall = 2;
+        public static final int TextAppearance_Material3_LabelLarge = 3;
+        public static final int Widget_Material3_Button = 4;
+        public static final int Widget_Material3_TextInputLayout_OutlinedBox = 5;
+    }
+}
+""")
 package com.google.android.material.card;
 import android.content.Context;
 import android.widget.FrameLayout;

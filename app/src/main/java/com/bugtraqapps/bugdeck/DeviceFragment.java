@@ -70,8 +70,8 @@ public class DeviceFragment extends Fragment {
         findingsList = view.findViewById(R.id.deviceFindings);
         remotePanel  = view.findViewById(R.id.deviceRemotePanel);
 
-        String saved = SettingsDialog.get(requireContext(), SettingsDialog.K_UNIFIED_HOST, "");
-        String tok   = SettingsDialog.get(requireContext(), SettingsDialog.K_UNIFIED_TOKEN, "");
+        String saved = SettingsDialog.unifiedHost(requireContext());
+        String tok   = SettingsDialog.unifiedToken(requireContext());
         if (!saved.isEmpty()) serverInput.setText(saved);
         if (!tok.isEmpty())   tokenInput.setText(tok);
 
@@ -88,8 +88,8 @@ public class DeviceFragment extends Fragment {
     }
 
     private void updateLinkStatus() {
-        String host = SettingsDialog.get(requireContext(), SettingsDialog.KEY_UNIFIED_HOST, "");
-        String token = SettingsDialog.get(requireContext(), SettingsDialog.KEY_UNIFIED_TOKEN, "");
+        String host = SettingsDialog.unifiedHost(requireContext());
+        String token = SettingsDialog.unifiedToken(requireContext());
         if (!host.isEmpty() && !token.isEmpty()) {
             linkStatus.setText(getString(R.string.device_linked, host));
             scanRemoteBtn.setEnabled(true);
@@ -127,8 +127,8 @@ public class DeviceFragment extends Fragment {
     // ------------------------------------------------------------------
 
     private void runRemoteScan() {
-        String host = SettingsDialog.get(requireContext(), SettingsDialog.KEY_UNIFIED_HOST, "");
-        String token = SettingsDialog.get(requireContext(), SettingsDialog.KEY_UNIFIED_TOKEN, "");
+        String host = SettingsDialog.unifiedHost(requireContext());
+        String token = SettingsDialog.unifiedToken(requireContext());
         if (host.isEmpty() || token.isEmpty()) {
             android.widget.Toast.makeText(requireContext(), R.string.device_link_first,
                     android.widget.Toast.LENGTH_SHORT).show();
@@ -179,7 +179,7 @@ public class DeviceFragment extends Fragment {
 
     private void appendError(String msg) {
         TextView tv = new TextView(requireContext());
-        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.vuln));
+        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.verdict_vulnerable));
         tv.setText(getString(R.string.device_scan_error, msg));
         findingsList.addView(tv);
     }

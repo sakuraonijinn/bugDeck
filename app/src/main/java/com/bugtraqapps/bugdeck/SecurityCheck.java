@@ -254,8 +254,8 @@ public final class SecurityCheck {
         // /proc/net/tcp is world-readable; parse for LISTEN sockets
         List<String> listeners = new ArrayList<>();
         try {
-            BufferedReader r = new BufferedReader(new InputStreamReader(
-        new File("/proc/net/tcp")));
+BufferedReader r = new BufferedReader(new InputStreamReader(
+new java.io.FileInputStream(new java.io.File("/proc/net/tcp"))));
             String header = r.readLine(); // skip header
             String line;
             Pattern p = Pattern.compile(
@@ -321,10 +321,12 @@ public final class SecurityCheck {
     private static void checkDeviceAdmin(Context ctx, List<Finding> out) {
         List<String> admins = new ArrayList<>();
         try {
-            ActivityManager am = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-            // DeviceAdminReceiver list is available via PackageManager
+            // DeviceAdminReceiver list is available via PackageManager reflection
             PackageManager pm = ctx.getPackageManager();
-            java.util.Set<String> enabled = pm.getStringEnabledDeviceAdmins(ctx);
+            java.lang.reflect.Method m = pm.getClass().getMethod(
+                    "getStringEnabledDeviceAdmins", Context.class);
+            @SuppressWarnings("unchecked")
+            java.util.Set<String> enabled = (java.util.Set<String>) m.invoke(pm, ctx);
             if (enabled != null) {
                 for (String comp : enabled) {
                     admins.add(comp);
