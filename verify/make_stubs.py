@@ -27,6 +27,8 @@ public class Context {
     public static final int MODE_PRIVATE = 0;
     public static final String CLIPBOARD_SERVICE = "clipboard";
     public SharedPreferences getSharedPreferences(String n, int m) { throw new UnsupportedOperationException("stub"); }
+    public android.content.pm.PackageManager getPackageManager() { throw new UnsupportedOperationException("stub"); }
+    public android.content.ContentResolver getContentResolver() { throw new UnsupportedOperationException("stub"); }
     public Object getSystemService(String n) { throw new UnsupportedOperationException("stub"); }
     public AssetManager getAssets() { throw new UnsupportedOperationException("stub"); }
     public Resources getResources() { throw new UnsupportedOperationException("stub"); }
@@ -122,6 +124,11 @@ public class View {
     public Resources getResources() { return null; }
     public <T extends View> T findViewById(int id) { return null; }
     public void setEnabledState(boolean b) {}
+    public void setPadding(int l, int t, int r, int b) {}
+    public void setGravity(int gravity) {}
+    public void setBackgroundColor(int color) {}
+    public void setLayoutParams(ViewGroup.LayoutParams params) {}
+    public ViewGroup.LayoutParams getLayoutParams() { return null; }
     public interface OnClickListener { void onClick(View v); }
     public interface OnLongClickListener { boolean onLongClick(View v); }
 }
@@ -133,7 +140,12 @@ public class ViewGroup extends View {
     public static class LayoutParams {
         public static final int MATCH_PARENT = -1, WRAP_CONTENT = -2;
         public int width, height;
+        public float weight;
+        public int leftMargin, topMargin, rightMargin, bottomMargin;
         public LayoutParams(int w, int h) { width = w; height = h; }
+        public LayoutParams(int w, int h, float weight) {
+            width = w; height = h; this.weight = weight;
+        }
     }
     public static class MarginLayoutParams extends LayoutParams {
         public MarginLayoutParams(int w, int h) { super(w, h); }
@@ -155,7 +167,19 @@ public class LayoutInflater {
 w("android/view/Menu.java", "public interface Menu {}\n")
 w("android/view/MenuItem.java", "public interface MenuItem { int getItemId(); }\n")
 w("android/view/MenuInflater.java", "public class MenuInflater { public void inflate(int menuRes, Menu menu) {} }\n")
-w("android/view/Gravity.java", "public class Gravity { public static final int CENTER_VERTICAL = 16; }\n")
+w("android/view/Gravity.java", """
+public class Gravity {
+    public static final int TOP = 48;
+    public static final int BOTTOM = 80;
+    public static final int LEFT = 3;
+    public static final int RIGHT = 5;
+    public static final int START = 0x00800003;
+    public static final int END = 0x00800005;
+    public static final int CENTER = 17;
+    public static final int CENTER_HORIZONTAL = 1;
+    public static final int CENTER_VERTICAL = 16;
+}
+""")
 
 # ---------------------------------------------------------------- android.widget
 w("android/widget/TextView.java", """
@@ -168,6 +192,16 @@ public class TextView extends View {
     public CharSequence getText() { return ""; }
     public void setTextColor(int color) {}
     public void setTextAppearance(int resId) {}
+    public void setTextSize(float size) {}
+    public void setTypeface(android.graphics.Typeface tf) {}
+    public void setHint(CharSequence hint) {}
+    public void setHint(int resid) {}
+    public void setMinLines(int lines) {}
+    public void setMaxLines(int lines) {}
+    public void setHorizontallyScrolling(boolean scroll) {}
+    public void setTextIsSelectable(boolean selectable) {}
+    public void setMovementMethod(android.text.method.MovementMethod m) {}
+    public void setSingleLine(boolean single) {}
 }
 """)
 w("android/widget/EditText.java", """
@@ -178,6 +212,7 @@ public class EditText extends TextView {
     public EditText(Context context) { super(context); }
     public Editable getText() { return null; }
     public void addTextChangedListener(TextWatcher watcher) {}
+    public void setSingleLine(boolean single) {}
 }
 """)
 w("android/widget/Button.java", """
@@ -256,6 +291,8 @@ import android.view.ViewGroup;
 public class LinearLayout extends ViewGroup {
     public static final int HORIZONTAL = 0, VERTICAL = 1;
     public LinearLayout(Context context) { super(context); }
+    public void setOrientation(int orientation) {}
+    public int getOrientation() { return VERTICAL; }
 }
 """)
 w("android/widget/FrameLayout.java", """
@@ -365,6 +402,11 @@ import android.view.View;
 import android.view.ViewGroup;
 public class Fragment {
     public void onCreate(Bundle savedInstanceState) {}
+    public void onResume() {}
+    public void onPause() {}
+    public void onStop() {}
+    public void onStart() {}
+    public void onDestroyView() {}
     public String getString(int resId) { return ""; }
     public String getString(int resId, Object... formatArgs) { return ""; }
     public android.content.res.Resources getResources() { return null; }
@@ -373,8 +415,9 @@ public class Fragment {
     public void onDestroy() {}
     public Context requireContext() { return null; }
     public Activity getActivity() { return null; }
-    public <T> T requireActivity() { return null; }
+    public <T extends FragmentActivity> T requireActivity() { return null; }
     public void setArguments(Bundle b) {}
+    public boolean isAdded() { return true; }
 }
 """)
 w("androidx/fragment/app/FragmentActivity.java", "import android.app.Activity;\npublic class FragmentActivity extends Activity {}\n")
@@ -505,32 +548,283 @@ public class AppBarLayout extends LinearLayout { public AppBarLayout(Context con
 
 # ---------------------------------------------------------------- org.json
 w("org/json/JSONException.java", "package org.json;\npublic class JSONException extends Exception { public JSONException(String s){super(s);} }\n")
+# The org.json stubs are functional rather than inert. An inert stub
+# silently produces an empty request body, so the contract test would
+# pass or fail for the wrong reason. These implement enough of the
+# real API to build a payload and read one back.
+w("org/json/JsonStub.java", r"""
+package org.json;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A small JSON reader and writer, shared by the JSONObject and JSONArray
+ * stubs. Only the subset the app uses is implemented: objects, arrays,
+ * strings, numbers, booleans and null.
+ */
+final class JsonStub {
+    private final String text;
+    private int at;
+
+    private JsonStub(String text) { this.text = text; }
+
+    static Object parse(String source) throws JSONException {
+        JsonStub p = new JsonStub(source == null ? "" : source);
+        p.skipSpace();
+        Object value = p.value();
+        p.skipSpace();
+        if (p.at < p.text.length()) { throw new JSONException("trailing content"); }
+        return value;
+    }
+
+    private void skipSpace() {
+        while (at < text.length() && Character.isWhitespace(text.charAt(at))) { at++; }
+    }
+
+    private Object value() throws JSONException {
+        skipSpace();
+        if (at >= text.length()) { throw new JSONException("unexpected end"); }
+        char c = text.charAt(at);
+        if (c == '{') { return object(); }
+        if (c == '[') { return array(); }
+        if (c == '"') { return string(); }
+        if (text.startsWith("true", at)) { at += 4; return Boolean.TRUE; }
+        if (text.startsWith("false", at)) { at += 5; return Boolean.FALSE; }
+        if (text.startsWith("null", at)) { at += 4; return null; }
+        return number();
+    }
+
+    private JSONObject object() throws JSONException {
+        JSONObject out = new JSONObject();
+        at++;
+        skipSpace();
+        if (at < text.length() && text.charAt(at) == '}') { at++; return out; }
+        while (true) {
+            skipSpace();
+            String key = string();
+            skipSpace();
+            if (at >= text.length() || text.charAt(at) != ':') { throw new JSONException("expected ':'"); }
+            at++;
+            out.put(key, value());
+            skipSpace();
+            if (at >= text.length()) { throw new JSONException("unterminated object"); }
+            char c = text.charAt(at++);
+            if (c == '}') { return out; }
+            if (c != ',') { throw new JSONException("expected ',' or '}'"); }
+        }
+    }
+
+    private JSONArray array() throws JSONException {
+        JSONArray out = new JSONArray();
+        at++;
+        skipSpace();
+        if (at < text.length() && text.charAt(at) == ']') { at++; return out; }
+        while (true) {
+            out.put(value());
+            skipSpace();
+            if (at >= text.length()) { throw new JSONException("unterminated array"); }
+            char c = text.charAt(at++);
+            if (c == ']') { return out; }
+            if (c != ',') { throw new JSONException("expected ',' or ']'"); }
+        }
+    }
+
+    private String string() throws JSONException {
+        if (at >= text.length() || text.charAt(at) != '"') { throw new JSONException("expected string"); }
+        at++;
+        StringBuilder sb = new StringBuilder();
+        while (at < text.length()) {
+            char c = text.charAt(at++);
+            if (c == '"') { return sb.toString(); }
+            if (c != '\\') { sb.append(c); continue; }
+            if (at >= text.length()) { break; }
+            char esc = text.charAt(at++);
+            switch (esc) {
+                case 'n': sb.append('\n'); break;
+                case 't': sb.append('\t'); break;
+                case 'r': sb.append('\r'); break;
+                case 'b': sb.append('\b'); break;
+                case 'f': sb.append('\f'); break;
+                case 'u':
+                    if (at + 4 > text.length()) { throw new JSONException("bad unicode escape"); }
+                    sb.append((char) Integer.parseInt(text.substring(at, at + 4), 16));
+                    at += 4;
+                    break;
+                default: sb.append(esc);
+            }
+        }
+        throw new JSONException("unterminated string");
+    }
+
+    private Object number() throws JSONException {
+        int start = at;
+        while (at < text.length() && "+-0123456789.eE".indexOf(text.charAt(at)) >= 0) { at++; }
+        if (start == at) { throw new JSONException("expected value"); }
+        String raw = text.substring(start, at);
+        try {
+            if (raw.indexOf('.') >= 0 || raw.indexOf('e') >= 0 || raw.indexOf('E') >= 0) {
+                return Double.valueOf(raw);
+            }
+            return Long.valueOf(raw);
+        } catch (NumberFormatException e) {
+            throw new JSONException("bad number: " + raw);
+        }
+    }
+
+    static String writeObject(Map<String, Object> values) {
+        StringBuilder sb = new StringBuilder("{");
+        boolean first = true;
+        for (Map.Entry<String, Object> e : values.entrySet()) {
+            if (!first) { sb.append(','); }
+            first = false;
+            sb.append(quote(e.getKey())).append(':').append(write(e.getValue()));
+        }
+        return sb.append('}').toString();
+    }
+
+    static String writeArray(List<Object> values) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < values.size(); i++) {
+            if (i > 0) { sb.append(','); }
+            sb.append(write(values.get(i)));
+        }
+        return sb.append(']').toString();
+    }
+
+    private static String write(Object value) {
+        if (value == null) { return "null"; }
+        if (value instanceof String) { return quote((String) value); }
+        if (value instanceof Boolean || value instanceof Number) { return String.valueOf(value); }
+        if (value instanceof JSONObject) { return value.toString(); }
+        if (value instanceof JSONArray) { return value.toString(); }
+        return quote(String.valueOf(value));
+    }
+
+    private static String quote(String s) {
+        StringBuilder sb = new StringBuilder("\"");
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"': sb.append("\\\""); break;
+                case '\\': sb.append("\\\\"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                default: sb.append(c);
+            }
+        }
+        return sb.append('"').toString();
+    }
+}
+""")
+
 w("org/json/JSONObject.java", """
 package org.json;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 public class JSONObject {
+    private final Map<String, Object> values = new LinkedHashMap<String, Object>();
     public JSONObject() {}
-    public JSONObject(String source) throws JSONException {}
-    public Iterator<String> keys() { return new ArrayList<String>().iterator(); }
-    public Object get(String key) throws JSONException { return null; }
-    public JSONObject getJSONObject(String key) throws JSONException { return null; }
-    public JSONArray getJSONArray(String key) throws JSONException { return null; }
-    public JSONArray optJSONArray(String key) { return null; }
-    public JSONObject optJSONObject(String key) { return null; }
-    public String optString(String key) { return ""; }
-    public String optString(String key, String fallback) { return fallback; }
+    public JSONObject(String source) throws JSONException {
+        Object parsed = JsonStub.parse(source);
+        if (!(parsed instanceof JSONObject)) { throw new JSONException("not an object"); }
+        values.putAll(((JSONObject) parsed).values);
+    }
+    public Iterator<String> keys() { return new ArrayList<String>(values.keySet()).iterator(); }
+    public int length() { return values.size(); }
+    public Object get(String key) throws JSONException {
+        if (!values.containsKey(key)) { throw new JSONException("no such key: " + key); }
+        return values.get(key);
+    }
+    public JSONObject getJSONObject(String key) throws JSONException {
+        Object v = get(key);
+        if (!(v instanceof JSONObject)) { throw new JSONException("not an object: " + key); }
+        return (JSONObject) v;
+    }
+    public JSONArray getJSONArray(String key) throws JSONException {
+        Object v = get(key);
+        if (!(v instanceof JSONArray)) { throw new JSONException("not an array: " + key); }
+        return (JSONArray) v;
+    }
+    public JSONArray optJSONArray(String key) {
+        Object v = values.get(key);
+        return (v instanceof JSONArray) ? (JSONArray) v : null;
+    }
+    public JSONObject optJSONObject(String key) {
+        Object v = values.get(key);
+        return (v instanceof JSONObject) ? (JSONObject) v : null;
+    }
+    public String optString(String key) { return optString(key, ""); }
+    public String optString(String key, String fallback) {
+        Object v = values.get(key);
+        return (v == null) ? fallback : String.valueOf(v);
+    }
+    public int optInt(String key, int fallback) {
+        Object v = values.get(key);
+        if (v instanceof Number) { return ((Number) v).intValue(); }
+        return fallback;
+    }
+    public boolean optBoolean(String key, boolean fallback) {
+        Object v = values.get(key);
+        if (v instanceof Boolean) { return ((Boolean) v).booleanValue(); }
+        return fallback;
+    }
+    public boolean has(String key) { return values.containsKey(key); }
+    public JSONObject put(String name, Object value) throws JSONException { values.put(name, value); return this; }
+    public JSONObject put(String name, String value) throws JSONException { values.put(name, value); return this; }
+    public JSONObject put(String name, int value) throws JSONException { values.put(name, Integer.valueOf(value)); return this; }
+    public JSONObject put(String name, boolean value) throws JSONException { values.put(name, Boolean.valueOf(value)); return this; }
+    public JSONObject put(String name, double value) throws JSONException { values.put(name, Double.valueOf(value)); return this; }
+    public String toString() { return JsonStub.writeObject(values); }
 }
 """)
 w("org/json/JSONArray.java", """
 package org.json;
+import java.util.ArrayList;
+import java.util.List;
 public class JSONArray {
+    private final List<Object> values = new ArrayList<Object>();
     public JSONArray() {}
-    public JSONArray(String source) throws JSONException {}
-    public int length() { return 0; }
-    public String getString(int index) throws JSONException { return ""; }
-    public String optString(int index) { return ""; }
+    public JSONArray(String source) throws JSONException {
+        Object parsed = JsonStub.parse(source);
+        if (!(parsed instanceof JSONArray)) { throw new JSONException("not an array"); }
+        values.addAll(((JSONArray) parsed).values);
+    }
+    public int length() { return values.size(); }
+    public Object get(int index) throws JSONException {
+        if (index < 0 || index >= values.size()) { throw new JSONException("index out of range: " + index); }
+        return values.get(index);
+    }
+    public String getString(int index) throws JSONException { return String.valueOf(get(index)); }
+    public String optString(int index) {
+        if (index < 0 || index >= values.size()) { return ""; }
+        return String.valueOf(values.get(index));
+    }
+    public JSONObject getJSONObject(int index) throws JSONException {
+        Object v = get(index);
+        if (!(v instanceof JSONObject)) { throw new JSONException("not an object"); }
+        return (JSONObject) v;
+    }
+    public JSONObject optJSONObject(int index) {
+        if (index < 0 || index >= values.size()) { return null; }
+        Object v = values.get(index);
+        return (v instanceof JSONObject) ? (JSONObject) v : null;
+    }
+    public JSONArray optJSONArray(int index) {
+        if (index < 0 || index >= values.size()) { return null; }
+        Object v = values.get(index);
+        return (v instanceof JSONArray) ? (JSONArray) v : null;
+    }
+    public int getInt(int index) throws JSONException {
+        Object v = get(index);
+        return (v instanceof Number) ? ((Number) v).intValue() : 0;
+    }
+    public JSONArray put(Object value) { values.add(value); return this; }
+    public String toString() { return JsonStub.writeArray(values); }
 }
 """)
 
@@ -608,6 +902,7 @@ public class R {
     }
 }
 """)
+w("com/google/android/material/card/MaterialCardView.java", """
 package com.google.android.material.card;
 import android.content.Context;
 import android.widget.FrameLayout;
@@ -615,6 +910,10 @@ public class MaterialCardView extends FrameLayout {
     public MaterialCardView(Context c) { super(c); }
     public void setCardBackgroundColor(int color) {}
     public void setRadius(float r) {}
+    public void setCardElevation(float elevation) {}
+    public void setStrokeWidth(int width) {}
+    public void setStrokeColor(int color) {}
+    public void setContentPadding(int l, int t, int r, int b) {}
 }
 """)
 w("com/google/android/material/checkbox/MaterialCheckBox.java", """
@@ -627,6 +926,7 @@ w("androidx/core/content/ContextCompat.java", """
 package androidx.core.content;
 import android.content.Context;
 public class ContextCompat {
+    public static int checkSelfPermission(Context context, String permission) { return 0; }
     public static int getColor(Context context, int id) { return 0; }
     public static String getString(Context context, int id) { return ""; }
 }
@@ -638,14 +938,6 @@ public class ColorStateList {
 }
 """)
 
-w("androidx/core/content/ContextCompat.java", """
-package androidx.core.content;
-import android.content.Context;
-public class ContextCompat {
-    public static int getColor(Context context, int id) { return 0; }
-    public static String getString(Context context, int id) { return ""; }
-}
-""")
 
 # ---------------------------------------------------------------- android.webkit
 w("android/webkit/WebView.java", """
@@ -673,6 +965,161 @@ package android.webkit;
 import android.view.View;
 public class WebViewClient {
     public void onPageFinished(WebView view, String url) {}
+}
+""")
+
+# ---------------------------------------------------------------- android.graphics
+w("android/graphics/Typeface.java", """
+package android.graphics;
+public class Typeface {
+    public static final Typeface DEFAULT = new Typeface();
+    public static final Typeface DEFAULT_BOLD = new Typeface();
+    public static final Typeface MONOSPACE = new Typeface();
+    public static Typeface create(String name, int style) { return new Typeface(); }
+}
+""")
+
+# ---------------------------------------------------------------- android.os extras
+w("android/os/Build.java", """
+package android.os;
+public class Build {
+    public static final String MODEL = "stub";
+    public static final String FINGERPRINT = "stub";
+    public static final String MANUFACTURER = "stub";
+    public static class VERSION { public static final int SDK_INT = 34; }
+}
+""")
+
+w("android/os/Process.java", """
+package android.os;
+public class Process {
+    public static int myUid() { return 0; }
+}
+""")
+
+# ---------------------------------------------------------------- android.net
+w("android/net/Uri.java", """
+package android.net;
+public class Uri {
+    public static String encode(String s) { return s; }
+    public static String encode(String s, String allow) { return s; }
+    public static Uri parse(String s) { return new Uri(); }
+    public String toString() { return ""; }
+}
+""")
+
+# ---------------------------------------------------------------- android.util
+w("android/util/Log.java", """
+package android.util;
+public class Log {
+    public static int v(String tag, String msg) { return 0; }
+    public static int d(String tag, String msg) { return 0; }
+    public static int i(String tag, String msg) { return 0; }
+    public static int w(String tag, String msg) { return 0; }
+    public static int e(String tag, String msg) { return 0; }
+    public static String getStackTraceString(Throwable t) { return ""; }
+}
+""")
+
+# ---------------------------------------------------------------- android.text.method
+w("android/text/method/MovementMethod.java", """
+package android.text.method;
+public interface MovementMethod { }
+""")
+
+w("android/text/method/ScrollingMovementMethod.java", """
+package android.text.method;
+public class ScrollingMovementMethod implements MovementMethod { }
+""")
+
+# ---------------------------------------------------------------- android.provider
+w("android/provider/Settings.java", """
+package android.provider;
+import android.content.Context;
+public class Settings {
+    public static class Secure {
+        public static String getString(android.content.ContentResolver r, String name) { return null; }
+        public static int getInt(android.content.ContentResolver r, String name, int def) { return def; }
+    }
+    public static class Global {
+        public static String getString(android.content.ContentResolver r, String name) { return null; }
+    }
+    public static class System {
+        public static String getString(android.content.ContentResolver r, String name) { return null; }
+    }
+}
+""")
+
+w("android/content/ContentResolver.java", """
+package android.content;
+public class ContentResolver { }
+""")
+
+# ---------------------------------------------------------------- android.content.pm
+w("android/content/pm/ApplicationInfo.java", """
+package android.content.pm;
+public class ApplicationInfo {
+    public static final int FLAG_DEBUGGABLE = 2;
+    public static final int FLAG_SYSTEM = 1;
+    public int flags;
+    public int uid;
+    public String packageName;
+    public String name;
+}
+""")
+
+w("android/content/pm/PackageManager.java", """
+package android.content.pm;
+import java.util.List;
+public class PackageManager {
+    public static final int PERMISSION_GRANTED = 0;
+    public static final int PERMISSION_DENIED = -1;
+    public static final int GET_META_DATA = 128;
+    public static final int MATCH_DISABLED_COMPONENTS = 512;
+    public List<ApplicationInfo> getInstalledApplications(int flags) { return null; }
+    public ApplicationInfo getApplicationInfo(String packageName, int flags) { return null; }
+}
+""")
+
+# ---------------------------------------------------------------- android.app extras
+w("android/app/Application.java", """
+package android.app;
+import android.content.Context;
+public class Application extends Context {
+    public Context getApplicationContext() { return this; }
+}
+""")
+
+w("android/app/ActivityManager.java", """
+package android.app;
+import java.util.List;
+public class ActivityManager {
+    public static class RunningAppProcessInfo {
+        public int pid;
+        public int uid;
+        public String processName;
+    }
+    public List<RunningAppProcessInfo> getRunningAppProcesses() { return null; }
+}
+""")
+
+w("android/app/AlertDialog.java", """
+package android.app;
+import android.content.DialogInterface;
+public class AlertDialog {
+    public static class Builder {
+        public Builder(android.content.Context context) { }
+        public Builder setTitle(int titleId) { return this; }
+        public Builder setTitle(CharSequence title) { return this; }
+        public Builder setView(android.view.View view) { return this; }
+        public Builder setPositiveButton(int text, DialogInterface.OnClickListener l) { return this; }
+        public Builder setNegativeButton(int text, DialogInterface.OnClickListener l) { return this; }
+        public Builder setMessage(int messageId) { return this; }
+        public AlertDialog create() { return new AlertDialog(); }
+        public AlertDialog show() { return new AlertDialog(); }
+    }
+    public void dismiss() { }
+    public void show() { }
 }
 """)
 

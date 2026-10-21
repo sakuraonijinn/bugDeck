@@ -24,6 +24,27 @@
     <string name="frida_quick_bypass_root">Bypass root check</string>
     <string name="frida_not_connected">Not connected</string>
     <string name="frida_not_connected_long">Connect to bugXhunter first</string>
+    <string name="frida_title">Frida Control</string>
+    <string name="frida_connect">Connect</string>
+    <string name="frida_disconnect">Disconnect</string>
+    <string name="frida_connecting">Connecting…</string>
+    <string name="frida_connected">Connected to %1$s</string>
+    <string name="frida_error_url_required">Error: server URL required</string>
+    <string name="frida_server_hint">bugXhunter server URL</string>
+    <string name="frida_server_url_hint">http://10.0.0.1:7080</string>
+    <string name="frida_token_hint">Auth token</string>
+    <string name="frida_token_from_config">from bugXhunter config.json</string>
+    <string name="frida_web_ui">Web UI</string>
+    <string name="frida_no_devices">No devices reported</string>
+    <string name="frida_no_processes">No processes reported</string>
+    <string name="frida_class_prompt">Class name</string>
+    <string name="frida_console">Console</string>
+    <string name="frida_hook_methods_for">Hook all methods of %1$s</string>
+    <string name="frida_bypass_root_loaded">Loaded the root-detection hook from the server</string>
+    <string name="frida_example_loaded">Loaded an example script</string>
+    <string name="frida_script_missing">Enter a script first</string>
+    <string name="frida_process_missing">Enter a target process first</string>
+    <string name="frida_result_id">result %1$s</string>
 
     <!-- scanner -->
     <string name="mode_sqli">SQL Injection</string>

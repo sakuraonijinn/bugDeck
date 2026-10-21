@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             android:importantForAutofill="no"
             android:inputType="text"
-            android:maxLines="2" />
+            android:maxLines="2"
+            android:hint="@string/hint_dork" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -37,7 +38,8 @@
             android:layout_height="wrap_content"
             android:importantForAutofill="no"
             android:inputType="textUri"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:hint="@string/hint_dork_domain" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView

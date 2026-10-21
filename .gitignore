@@ -19,3 +19,4 @@ verify/.err
 
 # OS noise
 .DS_Store
+verify/R.java

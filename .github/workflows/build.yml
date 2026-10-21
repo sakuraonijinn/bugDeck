@@ -117,23 +117,33 @@ jobs:
       - name: install the server dependencies
         run: pip install uvicorn starlette aiohttp
 
-      - name: fetch org.json and the android platform
+      - name: fetch the android platform
         run: |
           set -euo pipefail
-          mkdir -p lib
-          curl -sSL -o lib/json.jar \
-            https://repo1.maven.org/maven2/org/json/json/20231013/json-20231013.jar
-
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | sort | tail -1)"
           fi
           yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
           "$SDKMANAGER" "platforms;android-34" > /dev/null
+          echo "sdk ready"
 
-          ANDROID_JAR="$ANDROID_HOME/platforms/android-34/android.jar"
-          test -f "$ANDROID_JAR"
-          echo "android.jar: $ANDROID_JAR"
+      - name: compile the app client and the contract test
+        run: |
+          set -euo pipefail
+          # The repo's own stub set, which is what verify/check.sh uses.
+          # The signatures are copied from the real framework, and the
+          # org.json stub is functional rather than inert.
+          mkdir -p out
+          python3 verify/make_stubs.py > /dev/null
+          python3 verify/make_r.py app/src/main/res verify/R.java > /dev/null
+          javac -nowarn -d out $(find verify/stub -name '*.java')
+          javac -nowarn -cp out -d out \
+            verify/R.java \
+            $(find core/src/main/java -name '*.java') \
+            app/src/main/java/com/bugtraqapps/bugdeck/UnifiedClient.java \
+            app/src/main/java/com/bugtraqapps/bugdeck/SecurityCheck.java \
+            app/src/test/java/com/bugtraqapps/bugdeck/ContractTest.java
 
       - name: start the server
         env:
@@ -150,17 +160,10 @@ jobs:
           curl -sf http://127.0.0.1:7080/health >/dev/null \
             || { echo "server did not start"; exit 1; }
 
-      - name: compile and run the contract test
+      - name: run the contract test
         run: |
           set -euo pipefail
-          ANDROID_JAR="$ANDROID_HOME/platforms/android-34/android.jar"
-          mkdir -p out
-          javac -nowarn -d out -cp "$ANDROID_JAR:lib/json.jar" \
-            core/src/main/java/com/bugtraqapps/bugdeck/core/*.java \
-            app/src/main/java/com/bugtraqapps/bugdeck/UnifiedClient.java \
-            app/src/main/java/com/bugtraqapps/bugdeck/SecurityCheck.java \
-            app/src/test/java/com/bugtraqapps/bugdeck/ContractTest.java
-          java -cp "out:lib/json.jar" com.bugtraqapps.bugdeck.ContractTest \
+          java -cp out com.bugtraqapps.bugdeck.ContractTest \
             http://127.0.0.1:7080 testtoken12345
 
       - name: stop the server

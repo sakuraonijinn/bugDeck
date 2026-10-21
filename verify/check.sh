@@ -35,6 +35,9 @@ rm -rf "$STUB" "$OUT"
 mkdir -p "$OUT"
 python3 "$HERE/make_stubs.py" > /dev/null
 
+echo "==> generating R"
+python3 "$HERE/make_r.py" "$ROOT/app/src/main/res" "$HERE/R.java" > /dev/null
+
 echo "==> compiling stubs"
 javac -nowarn -d "$OUT" $(find "$STUB" -name '*.java')
 

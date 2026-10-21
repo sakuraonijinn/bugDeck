@@ -183,6 +183,26 @@ public final class UnifiedClient {
     }
 
     /**
+     * Fetch a script from the server's hook library.
+     * @param name Hook name, with or without the .js suffix
+     * @return The script source, or null on failure
+     */
+    public String hookScript(String name) {
+        Fetcher.Fetch f = Fetcher.get(baseUrl + "/hooks/" + Uri.encode(name),
+                new Fetcher.Opts().ua(Fetcher.DEFAULT_UA).timeout(timeoutMs)
+                        .header("X-Auth-Token", token));
+        if (!f.ok()) {
+            return null;
+        }
+        try {
+            JSONObject o = new JSONObject(f.body);
+            return o.optString("script", null);
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    /**
      * POST helper.
      */
     private static Fetcher.Fetch post(String url, String body, Fetcher.Opts opts) {
