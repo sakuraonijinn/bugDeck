@@ -85,7 +85,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # Test bugXhunter server (separate repo: sakuraonijinn/bugXhunter-)
+  # Test bugXhunter server (separate repo: sakuraonijinn/bugXhunter)
   bugxhunter:
     name: bugXhunter server
     runs-on: ubuntu-latest
@@ -99,7 +99,7 @@ jobs:
       - name: Clone bugXhunter server repo
         uses: actions/checkout@v5
         with:
-          repository: sakuraonijinn/bugXhunter-
+          repository: sakuraonijinn/bugXhunter
           path: bugxhunter
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -212,7 +212,7 @@ jobs:
       - name: Clone bugXhunter server repo
         uses: actions/checkout@v5
         with:
-          repository: sakuraonijinn/bugXhunter-
+          repository: sakuraonijinn/bugXhunter
           path: bugxhunter
           token: ${{ secrets.GITHUB_TOKEN }}
 
