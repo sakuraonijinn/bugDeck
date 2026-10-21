@@ -171,6 +171,15 @@ jobs:
           python3 -m bugxhunter.client tools | head -c 200
           echo ""
 
+      - name: Lint the Frida hook library
+        working-directory: bugxhunter
+        run: |
+          # The hooks cannot be run without a device, so they are checked
+          # statically: syntax, hooks installed on a dispatcher rather than
+          # a named overload, and replacements that call themselves.
+          python3 -m bugxhunter.client hooks lint
+          echo "  ok   hook library clean"
+
   # Release: upload APK as GitHub Release
   release:
     name: Upload APK release
