@@ -85,7 +85,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # Deploy bugXhunter server (Raspberry Pi / VPS / NixOS VM)
+  # Test bugXhunter server (separate repo: bugtraqapps/bugxhunter)
   bugxhunter:
     name: bugXhunter server
     runs-on: ubuntu-latest
@@ -93,8 +93,15 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout code
+      - name: Checkout BugDeck repo
         uses: actions/checkout@v5
+
+      - name: Clone bugXhunter server repo
+        uses: actions/checkout@v5
+        with:
+          repository: bugtraqapps/bugxhunter
+          path: bugxhunter
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -106,16 +113,19 @@ jobs:
           pip install uvicorn starlette aiohttp
           echo "Bugxhunter server dependencies installed"
 
-      - name: Test bugxhunter server (if present)
+      - name: Test bugXhunter server
         run: |
-          if [ -d "bugxhunter" ]; then
-            cd bugxhunter
-            timeout 10 python3 -m uvicorn bugxhunter_server:app --host 0.0.0.0 --port 7080 &
-            sleep 5
-            curl -s http://localhost:7080/health
-          else
-            echo "No bugxhunter directory - skipping server test"
-          fi
+          cd bugxhunter
+          timeout 10 python3 -m uvicorn bugxhunter.server:app --host 0.0.0.0 --port 7080 &
+          sleep 5
+          echo "--- /health ---"
+          curl -s http://localhost:7080/health
+          echo ""
+          echo "--- /status ---"
+          curl -s -H "X-Auth-Token: testtoken12345" http://localhost:7080/status
+          echo ""
+          echo "--- /diagnose ---"
+          curl -s -H "X-Auth-Token: testtoken12345" http://localhost:7080/diagnose | head -c 500
 
   # Release: upload APK as GitHub Release
   release:
