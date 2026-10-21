@@ -85,7 +85,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # Test bugXhunter server (separate repo: bugtraqapps/bugxhunter)
+  # Test bugXhunter server (separate repo: sakuraonijinn/bugXhunter-)
   bugxhunter:
     name: bugXhunter server
     runs-on: ubuntu-latest
@@ -99,7 +99,7 @@ jobs:
       - name: Clone bugXhunter server repo
         uses: actions/checkout@v5
         with:
-          repository: bugtraqapps/bugxhunter
+          repository: sakuraonijinn/bugXhunter-
           path: bugxhunter
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -114,18 +114,62 @@ jobs:
           echo "Bugxhunter server dependencies installed"
 
       - name: Test bugXhunter server
+        env:
+          AUTH_TOKEN: testtoken12345
         run: |
           cd bugxhunter
-          timeout 10 python3 -m uvicorn bugxhunter.server:app --host 0.0.0.0 --port 7080 &
-          sleep 5
-          echo "--- /health ---"
-          curl -s http://localhost:7080/health
+          python3 -m uvicorn bugxhunter.server:app --host 127.0.0.1 --port 7080 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+
+          # Wait for the server to answer rather than sleeping blindly.
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:7080/health >/dev/null && break
+            sleep 1
+          done
+
+          check() { # name expected actual
+            if [ "$2" = "$3" ]; then
+              echo "  ok   $1 ($3)"
+            else
+              echo "  FAIL $1: expected $2, got $3"
+              exit 1
+            fi
+          }
+
+          echo "--- endpoints ---"
+          check "health (public)"    200 "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7080/health)"
+          check "status (no token)"  401 "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7080/status)"
+          check "status (bad token)" 401 "$(curl -s -o /dev/null -w '%{http_code}' -H 'X-Auth-Token: wrong' http://127.0.0.1:7080/status)"
+          check "status (good token)" 200 "$(curl -s -o /dev/null -w '%{http_code}' -H 'X-Auth-Token: testtoken12345' http://127.0.0.1:7080/status)"
+          check "diagnose"           200 "$(curl -s -o /dev/null -w '%{http_code}' -H 'X-Auth-Token: testtoken12345' http://127.0.0.1:7080/diagnose)"
+          check "tools"              200 "$(curl -s -o /dev/null -w '%{http_code}' -H 'X-Auth-Token: testtoken12345' http://127.0.0.1:7080/tools)"
+          check "bugSteps (no token)" 401 "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:7080/bugSteps)"
+          check "bugSteps (token)"   200 "$(curl -s -o /dev/null -w '%{http_code}' -H 'X-Auth-Token: testtoken12345' http://127.0.0.1:7080/bugSteps)"
+
+          echo "--- payloads ---"
+          curl -s http://127.0.0.1:7080/health
           echo ""
-          echo "--- /status ---"
-          curl -s -H "X-Auth-Token: testtoken12345" http://localhost:7080/status
+          curl -s -H "X-Auth-Token: testtoken12345" http://127.0.0.1:7080/status
           echo ""
-          echo "--- /diagnose ---"
-          curl -s -H "X-Auth-Token: testtoken12345" http://localhost:7080/diagnose | head -c 500
+          curl -s -H "X-Auth-Token: testtoken12345" http://127.0.0.1:7080/diagnose | head -c 400
+          echo ""
+
+          echo "--- operator CLI ---"
+          export BUGXHUNTER_HOST=http://127.0.0.1:7080
+          export BUGXHUNTER_TOKEN=testtoken12345
+          python3 -m bugxhunter.client steps > /dev/null && echo "  ok   xbug steps"
+          python3 -m bugxhunter.client status | head -c 200
+          echo ""
+
+      - name: Check the operator CLI standalone
+        working-directory: bugxhunter
+        run: |
+          # The steps command is local content and must work with no server.
+          python3 -m bugxhunter.client steps > /dev/null
+          echo "  ok   xbug steps (no server needed)"
+          python3 -m bugxhunter.client tools | head -c 200
+          echo ""
 
   # Release: upload APK as GitHub Release
   release:
@@ -168,7 +212,7 @@ jobs:
       - name: Clone bugXhunter server repo
         uses: actions/checkout@v5
         with:
-          repository: bugtraqapps/bugxhunter
+          repository: sakuraonijinn/bugXhunter-
           path: bugxhunter
           token: ${{ secrets.GITHUB_TOKEN }}
 
