@@ -115,7 +115,6 @@ public final class Fetcher {
         if (rawUrl == null || rawUrl.trim().isEmpty()) {
             return new Fetch(0, "", "", false, "empty url");
         }
-
         String start = rawUrl.trim();
         if (!start.startsWith("http://") && !start.startsWith("https://")) {
             start = "http://" + start;
@@ -170,7 +169,31 @@ public final class Fetcher {
     }
 
     /** One request, no redirect following. Sets {@link #LOCATION} as a side effect. */
+    /**
+     * Issue a POST with a JSON body.
+     *
+     * <p>Redirects are not followed. A 302 after a POST is almost always a
+     * server redirecting to a GET, and replaying the body against the new
+     * location would be wrong, so the redirect is returned as-is.
+     */
+    public static Fetch post(String rawUrl, String body, Opts o) {
+        if (o == null) o = new Opts();
+        if (rawUrl == null || rawUrl.trim().isEmpty()) {
+            return new Fetch(0, "", "", false, "empty url");
+        }
+        String start = rawUrl.trim();
+        if (!start.startsWith("http://") && !start.startsWith("https://")) {
+            start = "http://" + start;
+        }
+        return single(start, "POST", body, o, false);
+    }
+
     private static Fetch single(String u, Opts o) {
+        return single(u, "GET", null, o, true);
+    }
+
+    private static Fetch single(String u, String method, String requestBody, Opts o,
+                                 boolean followRedirects) {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(u);
@@ -179,7 +202,7 @@ public final class Fetcher {
                 return new Fetch(0, "", u, false, "not an http url");
             }
             conn = (HttpURLConnection) raw;
-            conn.setRequestMethod("GET");
+            conn.setRequestMethod(method);
             // the originals had none of these, so one slow host hung the whole scan
             conn.setConnectTimeout(o.timeoutMs);
             conn.setReadTimeout(o.timeoutMs);
@@ -193,12 +216,37 @@ public final class Fetcher {
                 conn.setRequestProperty(e.getKey(), e.getValue());
             }
 
+            // Write the body before reading the response, so the server
+            // sees a complete request.
+            if (requestBody != null) {
+                byte[] payload = requestBody.getBytes("UTF-8");
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(payload.length);
+                if (conn.getRequestProperty("Content-Type") == null) {
+                    conn.setRequestProperty("Content-Type", "application/json");
+                }
+                java.io.OutputStream os = conn.getOutputStream();
+                try {
+                    os.write(payload);
+                    os.flush();
+                } finally {
+                    os.close();
+                }
+            }
+
             int status = conn.getResponseCode();
             String loc = conn.getHeaderField("Location");
             String ct = conn.getHeaderField("Content-Type");
 
             String finalUrl = conn.getURL().toString();
             boolean redirected = status >= 300 && status < 400 && loc != null;
+            if (redirected && !followRedirects) {
+                // The caller asked not to follow, so hand back the redirect
+                // itself with whatever body came with it.
+                InputStream rin = conn.getErrorStream();
+                String rbody = readAll(rin, conn.getContentEncoding());
+                return new Fetch(status, rbody, finalUrl, true, null, loc, ct);
+            }
 
             InputStream in = (status >= 400) ? conn.getErrorStream() : conn.getInputStream();
             String body = readAll(in, conn.getContentEncoding());

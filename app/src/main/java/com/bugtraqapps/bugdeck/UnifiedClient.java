@@ -1,5 +1,7 @@
 package com.bugtraqapps.bugdeck;
 
+import android.net.Uri;
+
 import com.bugtraqapps.bugdeck.core.Fetcher;
 import com.bugtraqapps.bugdeck.SecurityCheck;
 
@@ -136,7 +138,11 @@ public final class UnifiedClient {
      * @param deviceId The device identifier (usually "local" or a serial)
      */
     public String fridaProcessesJson(String deviceId) {
-        Fetcher.Fetch f = Fetcher.get(baseUrl + "/frida/processes?device=" + deviceId,
+        String url = baseUrl + "/frida/processes";
+        if (deviceId != null && !deviceId.trim().isEmpty()) {
+            url += "?device=" + Uri.encode(deviceId.trim());
+        }
+        Fetcher.Fetch f = Fetcher.get(url,
                 new Fetcher.Opts().ua(Fetcher.DEFAULT_UA).timeout(timeoutMs)
                         .header("X-Auth-Token", token));
         return f.ok() ? f.body : null;
@@ -151,8 +157,11 @@ public final class UnifiedClient {
     public String fridaExecuteScript(String script, String process) {
         try {
             JSONObject payload = new JSONObject();
-            payload.put("script", script);
+            // The server takes "target" for the process and accepts the
+            // script as source text, so both are sent.
+            payload.put("target", process);
             payload.put("process", process);
+            payload.put("script", script);
             Fetcher.Fetch f = post(baseUrl + "/frida/script", payload.toString(),
                     new Fetcher.Opts().ua(Fetcher.DEFAULT_UA).timeout(timeoutMs)
                             .header("X-Auth-Token", token));
@@ -167,19 +176,17 @@ public final class UnifiedClient {
      * @param resultId The ID returned from fridaExecuteScript
      */
     public String fridaGetResult(String resultId) {
-        Fetcher.Fetch f = Fetcher.get(baseUrl + "/frida/results/" + resultId,
+        Fetcher.Fetch f = Fetcher.get(baseUrl + "/frida/results/" + Uri.encode(resultId),
                 new Fetcher.Opts().ua(Fetcher.DEFAULT_UA).timeout(timeoutMs)
                         .header("X-Auth-Token", token));
         return f.ok() ? f.body : null;
     }
 
     /**
-     * POST helper - Fetcher only does GET, so we use a raw connection.
+     * POST helper.
      */
     private static Fetcher.Fetch post(String url, String body, Fetcher.Opts opts) {
-        // Fallback: use Fetcher.get with a query param trick
-        // The server handles POST via GET with body anyway
-        return Fetcher.get(url + "?_body=" + body, opts);
+        return Fetcher.post(url, body, opts);
     }
 
     // ------------------------------------------------------------------

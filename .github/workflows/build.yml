@@ -85,6 +85,88 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  # The app's client and the server have to agree. This runs the real
+  # UnifiedClient against the real bugXhunter server, so a change to
+  # either side that breaks the contract fails here rather than on a
+  # phone in the field.
+  contract:
+    name: app and server contract
+    runs-on: ubuntu-latest
+    needs: core
+
+    steps:
+      - name: Checkout BugDeck repo
+        uses: actions/checkout@v5
+
+      - name: Clone bugXhunter server repo
+        uses: actions/checkout@v5
+        with:
+          repository: sakuraonijinn/bugXhunter
+          path: bugxhunter
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: install the server dependencies
+        run: pip install uvicorn starlette aiohttp
+
+      - name: fetch org.json and the android platform
+        run: |
+          set -euo pipefail
+          mkdir -p lib
+          curl -sSL -o lib/json.jar \
+            https://repo1.maven.org/maven2/org/json/json/20231013/json-20231013.jar
+
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | sort | tail -1)"
+          fi
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-34" > /dev/null
+
+          ANDROID_JAR="$ANDROID_HOME/platforms/android-34/android.jar"
+          test -f "$ANDROID_JAR"
+          echo "android.jar: $ANDROID_JAR"
+
+      - name: start the server
+        env:
+          AUTH_TOKEN: testtoken12345
+        run: |
+          set -euo pipefail
+          cd bugxhunter
+          python3 -m uvicorn bugxhunter.server:app --host 127.0.0.1 --port 7080 &
+          echo $! > /tmp/bugxhunter.pid
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:7080/health >/dev/null && break
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:7080/health >/dev/null \
+            || { echo "server did not start"; exit 1; }
+
+      - name: compile and run the contract test
+        run: |
+          set -euo pipefail
+          ANDROID_JAR="$ANDROID_HOME/platforms/android-34/android.jar"
+          mkdir -p out
+          javac -nowarn -d out -cp "$ANDROID_JAR:lib/json.jar" \
+            core/src/main/java/com/bugtraqapps/bugdeck/core/*.java \
+            app/src/main/java/com/bugtraqapps/bugdeck/UnifiedClient.java \
+            app/src/main/java/com/bugtraqapps/bugdeck/SecurityCheck.java \
+            app/src/test/java/com/bugtraqapps/bugdeck/ContractTest.java
+          java -cp "out:lib/json.jar" com.bugtraqapps.bugdeck.ContractTest \
+            http://127.0.0.1:7080 testtoken12345
+
+      - name: stop the server
+        if: always()
+        run: kill "$(cat /tmp/bugxhunter.pid)" 2>/dev/null || true
+
   # Test bugXhunter server (separate repo: sakuraonijinn/bugXhunter)
   bugxhunter:
     name: bugXhunter server
