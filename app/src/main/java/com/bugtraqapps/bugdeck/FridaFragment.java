@@ -126,6 +126,12 @@ public class FridaFragment extends Fragment {
         serverInput = new TextInputEditText(requireContext());
         serverInput.setHint(getString(R.string.frida_server_url_hint));
         serverInput.setSingleLine(true);
+        // Pre-fill from the shared server setting, so the server is
+        // configured once and both tabs use it.
+        String savedHost = SettingsDialog.unifiedHost(requireContext());
+        if (savedHost != null && !savedHost.trim().isEmpty()) {
+            serverInput.setText(savedHost.trim());
+        }
         serverLayout.addView(serverInput);
         inner.addView(serverLayout);
 
@@ -134,6 +140,10 @@ public class FridaFragment extends Fragment {
         tokenInput = new TextInputEditText(requireContext());
         tokenInput.setHint(getString(R.string.frida_token_from_config));
         tokenInput.setSingleLine(true);
+        String savedToken = SettingsDialog.unifiedToken(requireContext());
+        if (savedToken != null && !savedToken.trim().isEmpty()) {
+            tokenInput.setText(savedToken.trim());
+        }
         tokenLayout.addView(tokenInput);
         inner.addView(tokenLayout);
 
@@ -314,6 +324,8 @@ public class FridaFragment extends Fragment {
         if (!savedHost.startsWith("http://") && !savedHost.startsWith("https://")) {
             savedHost = "http://" + savedHost;
         }
+        // The Device tab talks to the same server, so remember it.
+        SettingsDialog.saveUnified(requireContext(), savedHost, savedToken);
         client = new UnifiedClient(savedHost, savedToken, 15000);
 
         setStatus(getString(R.string.frida_connecting));

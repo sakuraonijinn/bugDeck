@@ -75,10 +75,38 @@ public class DeviceFragment extends Fragment {
         if (!saved.isEmpty()) serverInput.setText(saved);
         if (!tok.isEmpty())   tokenInput.setText(tok);
 
+        // The fields are the way the operator points the app at a
+        // server, so what is typed here has to be what the rest of the
+        // app reads. Without this the fields were decorative: the
+        // remote scan read a setting nothing ever wrote.
+        serverInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(java.lang.CharSequence s, int a, int b, int c) { }
+            @Override public void onTextChanged(java.lang.CharSequence s, int a, int b, int c) { }
+            @Override public void afterTextChanged(android.text.Editable s) { saveServer(); }
+        });
+        tokenInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(java.lang.CharSequence s, int a, int b, int c) { }
+            @Override public void onTextChanged(java.lang.CharSequence s, int a, int b, int c) { }
+            @Override public void afterTextChanged(android.text.Editable s) { saveServer(); }
+        });
+
         scanLocalBtn.setOnClickListener(v -> runLocalScan());
         scanRemoteBtn.setOnClickListener(v -> runRemoteScan());
 
         updateLinkStatus();
+    }
+
+    /** Persist the server fields, and refresh the link status. */
+    private void saveServer() {
+        if (serverInput == null || tokenInput == null) { return; }
+        SettingsDialog.saveUnified(requireContext(),
+                text(serverInput), text(tokenInput));
+        updateLinkStatus();
+    }
+
+    private static String text(TextInputEditText field) {
+        CharSequence c = field.getText();
+        return c == null ? "" : c.toString().trim();
     }
 
     @Override
@@ -88,8 +116,12 @@ public class DeviceFragment extends Fragment {
     }
 
     private void updateLinkStatus() {
-        String host = SettingsDialog.unifiedHost(requireContext());
-        String token = SettingsDialog.unifiedToken(requireContext());
+        String host = serverInput != null ? text(serverInput) : "";
+        String token = tokenInput != null ? text(tokenInput) : "";
+        if (host.isEmpty() || token.isEmpty()) {
+            host = SettingsDialog.unifiedHost(requireContext());
+            token = SettingsDialog.unifiedToken(requireContext());
+        }
         if (!host.isEmpty() && !token.isEmpty()) {
             linkStatus.setText(getString(R.string.device_linked, host));
             scanRemoteBtn.setEnabled(true);
@@ -127,13 +159,26 @@ public class DeviceFragment extends Fragment {
     // ------------------------------------------------------------------
 
     private void runRemoteScan() {
-        String host = SettingsDialog.unifiedHost(requireContext());
-        String token = SettingsDialog.unifiedToken(requireContext());
+        // Read what is in the fields, falling back to the saved setting.
+        // The fields are the source of truth, because that is where the
+        // operator types the address.
+        String host = text(serverInput);
+        String token = text(tokenInput);
+        if (host.isEmpty() || token.isEmpty()) {
+            host = SettingsDialog.unifiedHost(requireContext());
+            token = SettingsDialog.unifiedToken(requireContext());
+        }
         if (host.isEmpty() || token.isEmpty()) {
             android.widget.Toast.makeText(requireContext(), R.string.device_link_first,
                     android.widget.Toast.LENGTH_SHORT).show();
             return;
         }
+        if (!host.startsWith("http://") && !host.startsWith("https://")) {
+            host = "http://" + host;
+        }
+        // The lambda below needs effectively final values.
+        final String serverUrl = host;
+        final String authToken = token;
 
         scanRemoteBtn.setEnabled(false);
         findingsList.removeAllViews();
@@ -141,7 +186,7 @@ public class DeviceFragment extends Fragment {
 
         executor.execute(() -> {
             try {
-                UnifiedClient client = new UnifiedClient(host, token,
+                UnifiedClient client = new UnifiedClient(serverUrl, authToken,
                         SettingsDialog.timeoutMs(requireContext()));
                 List<SecurityCheck.Finding> findings =
                         client.remoteDiagnose(requireContext());

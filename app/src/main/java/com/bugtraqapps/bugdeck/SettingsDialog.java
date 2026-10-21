@@ -53,6 +53,21 @@ public final class SettingsDialog {
     public static String unifiedHost(Context c) { return prefs(c).getString(K_UNIFIED_HOST, ""); }
     public static String unifiedToken(Context c) { return prefs(c).getString(K_UNIFIED_TOKEN, ""); }
 
+    /**
+     * Save the server address and token.
+     *
+     * <p>The Device tab and the Frida tab talk to the same server, so
+     * they share one setting. A tab that connects to a server writes it
+     * here, and a tab that opens reads it from here, so the two cannot
+     * drift apart.
+     */
+    public static void saveUnified(Context c, String host, String token) {
+        prefs(c).edit()
+             .putString(K_UNIFIED_HOST, host == null ? "" : host.trim())
+             .putString(K_UNIFIED_TOKEN, token == null ? "" : token.trim())
+             .apply();
+    }
+
     /** Push the saved cx into the core, which reads it from a static holder. */
     public static void applyToCore(Context c) {
         DorkProviders.CseIdHolder.cx = cseId(c);
