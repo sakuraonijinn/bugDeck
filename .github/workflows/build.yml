@@ -270,7 +270,10 @@ jobs:
     name: Upload APK release
     runs-on: ubuntu-latest
     needs: apk
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    # Only on a tag. On a manual dispatch there is no tag, and creating
+    # a release for a tag that does not exist fails the job; the APK is
+    # already available as an artifact in that case.
+    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - uses: actions/checkout@v5
@@ -287,10 +290,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.ref_name }} \
-            --title "BugDeck Release ${{ github.ref_name }}" \
-            --notes "Auto-generated release with BugDeck APK + bugXhunter server" \
-            app/build/outputs/apk/debug/*.apk
+          set -euo pipefail
+          apk=$(find app/build/outputs/apk/debug -name '*.apk' | head -1)
+          if [ -z "$apk" ]; then echo "no APK to release"; exit 1; fi
+          if gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
+            echo "release already exists, uploading the assets to it"
+            gh release upload "${{ github.ref_name }}" "$apk" --clobber
+          else
+            gh release create "${{ github.ref_name }}" \
+              --title "BugDeck Release ${{ github.ref_name }}" \
+              --notes "Auto-generated release with BugDeck APK + bugXhunter server" \
+              "$apk"
+          fi
+          echo "released ${{ github.ref_name }}"
 
   # Deploy bugXhunter to any machine you control (manual trigger)
   deploy-bugxhunter:
