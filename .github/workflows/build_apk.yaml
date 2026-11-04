@@ -33,12 +33,13 @@ jobs:
           echo "$ANDROID_HOME" >> $GITHUB_PATH
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           
-      # 4. Generate Keystore automatically
+      # 4. Generate Keystore automatically (Fixed to prevent interactive prompts)
       - name: Generate Keystore
         run: |
           keytool -genkey -v -keystore my-release-key.keystore \
           -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 \
-          -storepass android -keypass android
+          -storepass android -keypass android \
+          -dname "CN=Android Debug, O=Android, C=US"
           
       # 5. Build the APK
       - name: Build APK
