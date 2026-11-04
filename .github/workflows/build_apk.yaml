@@ -1,0 +1,62 @@
+name: Build and Sign APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Checkout the code
+      - uses: actions/checkout@v3
+      
+      # 2. Set up Java 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      # 3. Install Android SDK
+      - name: Setup Android SDK
+        run: |
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip -q commandlinetools-linux-9477386_latest.zip
+          mv cmdline-tools latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          echo "$ANDROID_HOME" >> $GITHUB_PATH
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          
+      # 4. Generate Keystore automatically (so you never forget the password!)
+      - name: Generate Keystore
+        run: |
+          keytool -genkey -v -keystore my-release-key.keystore \
+          -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 \
+          -storepass android -keypass android
+          
+      # 5. Build the APK
+      - name: Build APK
+        run: ./gradlew assembleDebug || ./gradlew assembleRelease
+        
+      # 6. Sign the APK (Using V2 signature which is mandatory for modern Android)
+      - name: Sign APK
+        run: |
+          apksigner sign \
+            --ks my-release-key.keystore \
+            --ks-pass pass:android \
+            --ks-key-alias my-alias \
+            --out signed.apk \
+            unsigned.apk
+            
+      # 7. Upload the signed APK as an artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: SignedAPK
+          path: signed.apk
