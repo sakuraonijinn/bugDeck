@@ -12,7 +12,7 @@ jobs:
       # 1. Checkout the code
       - uses: actions/checkout@v4
       
-      # 2. Set up Java 17 (required for Android builds)
+      # 2. Set up Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -27,21 +27,34 @@ jobs:
           -storepass android -keypass android \
           -dname "CN=Android Debug, O=Android, C=US"
           
-      # 4. Build the APK (uses pre-installed Android SDK)
+      # 4. Setup Android SDK Path & Build Tools (Fixed)
+      - name: Setup Android SDK Path
+        run: |
+          # Find the latest build-tools version installed
+          BUILD_TOOLS_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | sort -V | tail -n 1)
+          echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION" >> $GITHUB_ENV
+          echo "/usr/local/lib/android/sdk/build-tools/$BUILD_TOOLS_VERSION" >> $GITHUB_PATH
+          echo "/usr/local/lib/android/sdk/platform-tools" >> $GITHUB_PATH
+          
+      # 5. Build the APK
       - name: Build APK
         run: ./gradlew assembleDebug || ./gradlew assembleRelease
         
-      # 5. Sign the APK (Using V2 signature which is mandatory for modern Android)
+      # 6. Sign the APK (apksigner now available in PATH)
       - name: Sign APK
         run: |
+          # Find the unsigned APK (location varies by project structure)
+          UNSIGNED_APK=$(find . -name "*-unsigned.apk" -o -name "*-release-unsigned.apk" -o -name "*-debug.apk" | head -n 1)
+          echo "Found APK: $UNSIGNED_APK"
+          
           apksigner sign \
             --ks my-release-key.keystore \
             --ks-pass pass:android \
             --ks-key-alias my-alias \
             --out signed.apk \
-            unsigned.apk
+            "$UNSIGNED_APK"
             
-      # 6. Upload the signed APK
+      # 7. Upload the signed APK
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
