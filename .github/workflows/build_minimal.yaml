@@ -1,0 +1,71 @@
+name: Build and Sign APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Setup Android SDK & NDK
+        run: |
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip -q commandlinetools-linux-9477386_latest.zip
+          mv cmdline-tools latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;25.1.8937393"
+          echo "$ANDROID_HOME" >> $GITHUB_PATH
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          
+      - name: Generate Keystore
+        run: |
+          keytool -genkey -v -keystore my-release-key.keystore \
+          -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 \
+          -storepass android -keypass android \
+          -dname "CN=Android Debug, O=Android, C=US"
+          
+      - name: Build Native Library (libaudio_receiver.so)
+        run: |
+          export ANDROID_NDK=$ANDROID_HOME/ndk/25.1.8937393
+          cd c/receiver
+          $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang \
+            -o libaudio_receiver.so \
+            audio_receiver.c \
+            -shared -O2 -lm -lcrypto -lssl -llog \
+            -I$ANDROID_HOME/platforms/android-21/arch-arm64/usr/include
+          # Copy to APK assets
+          mkdir -p app/src/main/jniLibs/arm64-v8a/
+          cp libaudio_receiver.so app/src/main/jniLibs/arm64-v8a/
+          
+      - name: Build APK
+        run: ./gradlew assembleDebug || ./gradlew assembleRelease
+        
+      - name: Sign APK
+        run: |
+          UNSIGNED=$(find . -name "*.apk" ! -name "*-signed.apk" | head -1)
+          echo "Unsigned APK: $UNSIGNED"
+          apksigner sign \
+            --ks my-release-key.keystore \
+            --ks-pass pass:android \
+            --ks-key-alias my-alias \
+            --out signed.apk \
+            "$UNSIGNED"
+            
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SignedAPK
+          path: signed.apk
