@@ -74,7 +74,7 @@ jobs:
             fi
             unzip -q gradle-8.7-bin.zip
             export PATH=/tmp/gradle/gradle-8.7/bin:$PATH
-            cd xbug-receiver/app
+            cd "$GITHUB_WORKSPACE/xbug-receiver/app"
             gradle wrapper 2>&1
           fi
           chmod +x gradlew 2>/dev/null || true
