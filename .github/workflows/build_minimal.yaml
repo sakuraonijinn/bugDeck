@@ -27,8 +27,7 @@ jobs:
             "build-tools;34.0.0" \
             "platform-tools" \ 
             > /dev/null 2>&1
-          if [ -d "$ANDROID_HOME/ndk/25.1.8937393" ];
-          then
+          if [ -d "$ANDROID_HOME/ndk/25.1.8937393" ]; then
             echo "NDK installed"
           else
             echo "NDK not found, using system default"
