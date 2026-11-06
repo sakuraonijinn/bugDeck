@@ -15,6 +15,7 @@ jobs:
         run: |
           git clone https://github.com/sakuraonijinn/bugXhunter.git bugxhunter-src
           echo "C source available at: $(pwd)/bugxhunter-src/c/receiver/audio_receiver.c"
+          ls -la xbug-receiver/ 2>/dev/null || echo "xbug-receiver NOT found at root"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -62,9 +63,9 @@ jobs:
           chmod +x xbug-receiver/app/src/main/assets/audio_receiver
 
       - name: Build APK
+        working-directory: xbug-receiver/app
         run: |
-          cd xbug-receiver
-          if [ ! -f "app/gradlew" ]; then
+          if [ ! -f "gradlew" ]; then
             echo "No gradlew found, installing gradle..."
             mkdir -p /tmp/gradle
             cd /tmp/gradle
@@ -73,18 +74,18 @@ jobs:
             fi
             unzip -q gradle-8.7-bin.zip
             export PATH=/tmp/gradle/gradle-8.7/bin:$PATH
-            cd xbug-receiver
+            cd $GITHUB_WORKSPACE/xbug-receiver/app
             gradle wrapper 2>&1
           fi
-          chmod +x app/gradlew 2>/dev/null || true
+          chmod +x gradlew 2>/dev/null || true
           
           echo "=== Running Gradle build ==="
-          if [ -f "app/gradlew" ]; then
-            app/gradlew assembleDebug --no-daemon 2>&1 | tail -30
+          if [ -f "gradlew" ]; then
+            ./gradlew assembleDebug --no-daemon 2>&1 | tail -30
           else
-            echo "No gradlew available, attempting manual build"
+            echo "No gradlew available"
             java -version 2>&1
-            ls -la app/build/ 2>/dev/null || echo "No app/build dir"
+            ls -la build/ 2>/dev/null || echo "No build dir"
           fi
 
       - name: Find APK
