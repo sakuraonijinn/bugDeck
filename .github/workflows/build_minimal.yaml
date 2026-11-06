@@ -17,45 +17,20 @@ jobs:
           echo "C source available at: $(pwd)/bugxhunter-src/c/receiver/audio_receiver.c"
           ls -la xbug-receiver/ 2>/dev/null || echo "xbug-receiver NOT found at root"
 
-      - name: Install Android command-line tools
-        run: |
-          set +e
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-<version>_latest.zip -O cmdtools.zip
-          unzip -q cmdtools.zip -d /opt/android-sdk/cmdline-tools
-          mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
-          printf 'y\ny\ny\ny\ny\ny\ny\ny\n' | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1
-          set -e
-          export ANDROID_HOME=/opt/android-sdk
-          export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools
-          sdkmanager \
-            "ndk;25.1.8937393" \
-            "platforms;android-34" \
-            "build-tools;34.0.0" \
-            "platform-tools" \
-            > /dev/null 2>&1
-      
-      - name: Set up JDK 17
+      - name: Setup JDK 17
         uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK Path
-        run: |
-          BUILD_TOOLS_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | sort -V | tail -n 1)
-          echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION" >> $GITHUB_ENV
-          echo "/usr/local/lib/android/sdk/build-tools/$BUILD_TOOLS_VERSION" >> $GITHUB_PATH
-          echo "/usr/local/lib/android/sdk/platform-tools" >> $GITHUB_PATH
-          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
-
-      - name: Install NDK
-        run: |
-          sdkmanager "ndk;25.1.8937393" "platforms;android-34" 2>/dev/null || true
-          if [ -d "$ANDROID_HOME/ndk/25.1.8937393" ]; then
-            echo "NDK installed"
-          else
-            echo "NDK not found, using system default"
-          fi
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            build-tools;34.0.0
+            platform-tools
+            platforms;android-34
+            ndk;25.1.8937393
 
       - name: Generate Keystore
         run: |
@@ -95,7 +70,7 @@ jobs:
             gradle wrapper 2>&1
           fi
           chmod +x gradlew 2>/dev/null || true
-          
+
           echo "=== Running Gradle build ==="
           if [ -f "gradlew" ]; then
             ./gradlew assembleDebug --no-daemon 2>&1 | tail -30
