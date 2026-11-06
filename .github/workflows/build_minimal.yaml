@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Clone bugXhunter Repo
         run: |
@@ -18,7 +18,7 @@ jobs:
           ls -la xbug-receiver/ 2>/dev/null || echo "xbug-receiver NOT found at root"
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -63,7 +63,7 @@ jobs:
           chmod +x xbug-receiver/app/src/main/assets/audio_receiver
 
       - name: Build APK
-        working-directory: xbug-receiver/app
+        working-directory: /app
         run: |
           if [ ! -f "gradlew" ]; then
             echo "No gradlew found, installing gradle..."
@@ -74,7 +74,7 @@ jobs:
             fi
             unzip -q gradle-8.7-bin.zip
             export PATH=/tmp/gradle/gradle-8.7/bin:$PATH
-            cd $GITHUB_WORKSPACE/xbug-receiver/app
+            cd $GITHUB_WORKSPACE/app
             gradle wrapper 2>&1
           fi
           chmod +x gradlew 2>/dev/null || true
