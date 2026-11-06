@@ -20,12 +20,12 @@ jobs:
 
       - name: Install NDK & SDK tools
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1
+          sdkmanager --licenses > /dev/null 2>&1
           sdkmanager \
             "ndk;25.1.8937393" \
             "platforms;android-34" \
             "build-tools;34.0.0" \
-            "platform-tools" \ 
+            "platform-tools"  
             > /dev/null 2>&1
           if [ -d "$ANDROID_HOME/ndk/25.1.8937393" ]; then
             echo "NDK installed"
