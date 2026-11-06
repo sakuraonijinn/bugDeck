@@ -71,8 +71,16 @@ jobs:
 
       - name: Sign APK
         run: |
-          UNSIGNED=$(find . -name "*.apk" ! -name "*-signed.apk" | head -1)
+          UNSIGNED=$(find xbug-receiver/app/build/outputs/apk/debug -name "*-debug.apk" ! -name "*-signed.apk" -o -name "*-unsigned.apk" 2>/dev/null | head -1)
+          if [ -z "$UNSIGNED" ]; then
+            UNSIGNED=$(find . -name "*.apk" ! -name "*-signed.apk" 2>/dev/null | head -1)
+          fi
           echo "Unsigned APK: $UNSIGNED"
+          if [ -z "$UNSIGNED" ]; then
+            echo "No unsigned APK found!"
+            find . -name "*.apk" 2>/dev/null || true
+            exit 1
+          fi
           apksigner sign \
             --ks my-release-key.keystore \
             --ks-pass pass:android \
