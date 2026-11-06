@@ -67,7 +67,7 @@ jobs:
           chmod +x xbug-receiver/app/src/main/assets/audio_receiver
 
       - name: Build APK
-        working-directory: xbug-receiver/app
+        working-directory: $GITHUB_WORKSPACE/xbug-receiver/app
         run: |
           if [ ! -f "gradlew" ]; then
             echo "No gradlew found, installing gradle..."
