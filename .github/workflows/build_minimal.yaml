@@ -3,11 +3,13 @@ name: Build Minimal Receiver APK
 on:
   push:
     branches: [ main ]
-      - uses: actions/checkout@v4
+      
 
 jobs:
   build_apk:
     runs-on: ubuntu-latest
+env:
+  PROJECT_DIR: ${{ github.workspace }}/bugxhunter-src/xbug-receiver
 
     steps:
       - uses: actions/checkout@v4
