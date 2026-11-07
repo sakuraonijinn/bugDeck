@@ -52,16 +52,16 @@ jobs:
             NDK=$(find $ANDROID_HOME/ndk -maxdepth 1 -type d 2>/dev/null | sort -V | tail -n 1)
           fi
           echo "Using NDK: $NDK"
-          mkdir -p $GITHUB_WORKSPACE/xbug-receiver/app/src/main/assets
+          mkdir -p $GITHUB_WORKSPACE/bugxhunter-src/xbug-receiver/app/src/main/assets
           $NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang \
-            -O2 -o $GITHUB_WORKSPACE/xbug-receiver/app/src/main/assets/audio_receiver \
+            -O2 -o $GITHUB_WORKSPACE/bugxhunter-src/xbug-receiver/app/src/main/assets/audio_receiver \
             $GITHUB_WORKSPACE/bugxhunter-src/c/receiver/audio_receiver.c \
             -lm -llog
           echo "Native binary built"
-          chmod +x $GITHUB_WORKSPACE/xbug-receiver/app/src/main/assets/audio_receiver
+          chmod +x $GITHUB_WORKSPACE/bugxhunter-src/xbug-receiver/app/src/main/assets/audio_receiver
 
       - name: Build APK
-        working-directory: ${{ github.workspace }}/xbug-receiver/app
+        working-directory: ${{ github.workspace }}/bugxhunter-src/xbug-receiver/app⁰
         run: |
           if [ ! -f "gradlew" ]; then
             echo "No gradlew found, installing gradle..."
@@ -72,7 +72,7 @@ jobs:
             fi
             unzip -q gradle-8.7-bin.zip
             export PATH=/tmp/gradle/gradle-8.7/bin:$PATH
-            cd $GITHUB_WORKSPACE/xbug-receiver/app
+            cd $GITHUB_WORKSPACE/bugxhunter-src/xbug-receiver/app
             gradle wrapper 2>&1
           fi
           chmod +x gradlew 2>/dev/null || true
