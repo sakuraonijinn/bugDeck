@@ -8,10 +8,9 @@ on:
 jobs:
   build_apk:
     runs-on: ubuntu-latest
-env:
-  PROJECT_DIR: $GITHUB_WORKSPACE/bugxhunter-src/xbug-receiver
 
     steps:
+    PROJECT_DIR: $GITHUB_WORKSPACE/bugxhunter-src/xbug-receiver
       - uses: actions/checkout@v4
 
       - name: Clone bugXhunter Repo
