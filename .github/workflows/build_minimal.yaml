@@ -9,9 +9,16 @@ jobs:
   build_apk:
     runs-on: ubuntu-latest
 
-    steps:
     PROJECT_DIR: $GITHUB_WORKSPACE/bugxhunter-src/xbug-receiver
+    steps:
       - uses: actions/checkout@v4
+
+      - name: Checkout second repo
+        uses: actions/checkout@v4
+        with:
+          repository: sakuraonijinn/bugXhunter
+          ref: main
+          path: bugxhunter-src
 
       - name: Clone bugXhunter Repo
         run: |
